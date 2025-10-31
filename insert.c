@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #define MAX_NAME 50
 #define MAX_PROGRAM 50
@@ -17,6 +16,7 @@ typedef struct {
 Student students[MAX_STUDENTS];
 int studentCount = 0;
 
+// Function to open database (tab-delimited)
 void openDatabase(char* filename) {
     FILE* file = fopen(filename, "r");
     if (!file) {
@@ -27,57 +27,38 @@ void openDatabase(char* filename) {
     studentCount = 0;
     char line[200];
 
+    // Skip the header line
+    if (fgets(line, sizeof(line), file) == NULL) {
+        printf("Error: File is empty\n");
+        fclose(file);
+        return;
+    }
+
+    // Read each student record
     while (fgets(line, sizeof(line), file) != NULL) {
         if (strlen(line) <= 1) continue; // skip empty lines
 
-        int id;
-        float mark;
-        char nameAndProgram[150] = "";
+        char* token;
 
-        // Extract ID
-        char* ptr = line;
-        sscanf(ptr, "%d", &id);
+        // ID
+        token = strtok(line, "\t");
+        if (!token) continue;
+        students[studentCount].id = atoi(token);
 
-        // Move ptr past ID
-        while (*ptr != ' ' && *ptr != '\0') ptr++;
-        while (*ptr == ' ') ptr++; // skip spaces
+        // Name
+        token = strtok(NULL, "\t");
+        if (!token) continue;
+        strcpy(students[studentCount].name, token);
 
-        // Extract mark from the end
-        char* lastSpace = strrchr(ptr, ' ');
-        if (!lastSpace) continue;
-        mark = atof(lastSpace + 1); // last token = mark
-        *lastSpace = '\0'; // terminate name + programme
+        // Programme
+        token = strtok(NULL, "\t");
+        if (!token) continue;
+        strcpy(students[studentCount].programme, token);
 
-        strcpy(nameAndProgram, ptr);
-
-        // Split name and programme (assume first two words = name)
-        char name[MAX_NAME] = "";
-        char programme[MAX_PROGRAM] = "";
-
-        char* space1 = strchr(nameAndProgram, ' ');
-        if (space1 != NULL) {
-            strncpy(name, nameAndProgram, space1 - nameAndProgram);
-            name[space1 - nameAndProgram] = '\0';
-
-            char* space2 = strchr(space1 + 1, ' ');
-            if (space2 != NULL) {
-                strncat(name, " ", 1);
-                strncat(name, space1 + 1, space2 - space1 -1);
-                strcpy(programme, space2 + 1);
-            } else {
-                strcat(name, " ");
-                strcat(name, space1 +1);
-                strcpy(programme, ""); // no programme?
-            }
-        } else {
-            strcpy(name, nameAndProgram);
-            strcpy(programme, "");
-        }
-
-        students[studentCount].id = id;
-        strcpy(students[studentCount].name, name);
-        strcpy(students[studentCount].programme, programme);
-        students[studentCount].mark = mark;
+        // Mark
+        token = strtok(NULL, "\t\n");
+        if (!token) continue;
+        students[studentCount].mark = atof(token);
 
         studentCount++;
         if (studentCount >= MAX_STUDENTS) break;
@@ -87,17 +68,26 @@ void openDatabase(char* filename) {
     printf("Database opened successfully. %d records loaded.\n", studentCount);
 }
 
+// Function to display all records
 void showAllRecords() {
-    printf("ID\tName\tProgramme\tMark\n");
-    printf("-------------------------------------------\n");
+    // Print table header
+    printf("+------------+----------------+----------------------+-------+\n");
+    printf("| ID         | Name           | Programme            | Mark  |\n");
+    printf("+------------+----------------+----------------------+-------+\n");
+
+    // Print each student
     for (int i = 0; i < studentCount; i++) {
-        printf("%d\t%s\t%s\t%.2f\n",
+        printf("| %-10d | %-14s | %-20s | %-5.2f |\n",
                students[i].id,
                students[i].name,
                students[i].programme,
                students[i].mark);
     }
+
+    // Print table bottom
+    printf("+------------+----------------+----------------------+-------+\n");
 }
+
 
 int main() {
     char filename[] = "P3_1-CMS.txt"; // Make sure this file exists in the same folder
