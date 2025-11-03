@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 Node* create_node(const Student* st) {
-	Node* newNode = (Node*)malloc(sizeof * n);
+	Node* newNode = (Node*)malloc(sizeof * newNode);
 	if (!newNode) {
 		return 0;
 	}
@@ -13,17 +13,18 @@ Node* create_node(const Student* st) {
 	return newNode;
 }
 int insert_node(LinkedList* L, const Student* st) {
-	Node* newNode = create_node(st);
-	if (!newNode) { //if there is no existing boxes
-		if (!L->tail) {
-			L->head = L->tail = n;
-		}
-		else { //else if there is existing boxes
-			L->tail->next = n;
-			L->tail = n;
-		}
-	}
-	return 0;
+    Node* newNode = create_node(st);
+    if (!newNode) {
+        return -1;                    // allocation failed
+    }
+
+    if (!L->head) {                   // empty list: head and tail become newNode
+        L->head = L->tail = newNode;
+    } else {                          // append to tail
+        L->tail->next = newNode;
+        L->tail = newNode;
+    }
+    return 0;                         // success
 }
 
 void list_init(LinkedList* L) {
@@ -40,8 +41,8 @@ void list_clear(LinkedList* L) {
 }
 
 Node* list_find_by_id(LinkedList* L, int id) {
-	for (Node* p = L->head; p; p = ->next) {
-		if (p->s.id == = id) {
+	for (Node* p = L->head; p; p = p->next) {
+		if (p->s.id == id) {
 			return p;
 		}
 	}
