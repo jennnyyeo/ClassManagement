@@ -4,7 +4,7 @@
 #include "linked_list.h"
 
 void show_all_cmd(const LinkedList* list);
-void insert_cmd(const char* key, const char* value, LinkedList* list);
-
+void query(const LinkedList *list, const char *args);
+void delete(LinkedList *list, const char *args);
 #endif
 

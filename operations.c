@@ -132,7 +132,7 @@ int opendb(LinkedList *store, const char *filename)
 	return 0;
 }
 
-int savedb(const LinkedList *store, const char *filename)
+int savedb(LinkedList *store, const char *filename)
 {
 	FILE *f = fopen(filename, "w");
 
