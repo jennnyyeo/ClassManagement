@@ -14,7 +14,7 @@ int main(void)
 	char command[256];
 	int fileopened = 0;
 
-	puts("Commands: OPEN | SHOW ALL | INSERT | QUERY ID=<id> | DELETE ID=<id> | EXIT | SAVE");
+	puts("Commands: OPEN | SHOW ALL | INSERT | QUERY ID=<id> | UPDATE ID=<id> | DELETE ID=<id> | EXIT | SAVE");
 	for (;;)
 	{
 		printf("Please input a command: ");
