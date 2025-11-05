@@ -14,7 +14,7 @@ int main(void)
 	char command[256];
 	int fileopened = 0;
 
-	puts("Commands: OPEN | SHOW ALL | QUERY ID=<id> | DELETE ID=<id> | EXIT | SAVE");
+	puts("Commands: OPEN | SHOW ALL | INSERT | QUERY ID=<id> | DELETE ID=<id> | EXIT | SAVE");
 	for (;;)
 	{
 		printf("Please input a command: ");
@@ -46,6 +46,11 @@ int main(void)
 			}
 			fileopened = 1;
 		}
+
+		else if (strcmp(command, "INSERT") == 0)
+        {
+            insertStudentRecords(&studentData);
+        }
 
 		else if (strcmp(command, "SHOW ALL") == 0)
 		{

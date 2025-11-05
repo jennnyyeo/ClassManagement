@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "commands.h"
 #include "linked_list.h"
 
@@ -30,6 +31,128 @@ void show_all_cmd(const LinkedList *list)
         records++;
     }
     printf("There are in total %zu record(s).\n", records);
+}
+
+void insertStudentRecords(LinkedList *list) 
+{
+    char buffer[128];
+    int valid_id;
+    Student s;
+
+    while (1) {
+        printf("Enter Student ID (7 digits): ");
+        if (!fgets(buffer, sizeof(buffer), stdin)) continue;  // in case of EOF
+
+        buffer[strcspn(buffer, "\n")] = '\0'; // remove newline
+
+        // Check length
+        if (strlen(buffer) != 7) {
+            printf("Error: ID must be exactly 7 digits.\n");
+            continue;
+        }
+
+        // Check all characters are digits
+        int valid = 1;
+        for (int i = 0; i < 7; i++) {
+            if (!isdigit((unsigned char)buffer[i])) {
+                valid = 0;
+                break;
+            }
+        }
+
+        if (!valid) {
+            printf("Error: ID must contain only digits.\n");
+            continue;
+        }
+
+        // Valid ID
+        s.id = atoi(buffer);
+        break;
+    }
+
+    while (1) {
+        printf("Enter Student Name: ");
+        if (!fgets(s.name, MAX_NAME, stdin)) continue;
+        s.name[strcspn(s.name, "\n")] = '\0'; // remove newline
+        
+        // Check that the name contains only letters or spaces
+        int valid = 1;
+        for (int i = 0; s.name[i] != '\0'; i++) {
+            if (!isalpha((unsigned char)s.name[i]) && s.name[i] != ' ') {
+                valid = 0;
+                break;
+            }
+        }
+        
+        if (!valid) {
+            printf("Error: Name must contain only letters and spaces.\n");
+            continue; // reprompt
+        }
+            
+        break; // valid name entered
+    }
+
+    while (1) {
+        printf("Enter Programme: ");
+        if (!fgets(s.programme, MAX_PROGRAM, stdin)) continue;
+        s.programme[strcspn(s.programme, "\n")] = '\0'; // remove newline
+        
+        // Check that the name contains only letters or spaces
+        int valid = 1;
+        for (int i = 0; s.programme[i] != '\0'; i++) {
+            if (!isalpha((unsigned char)s.programme[i]) && s.programme[i] != ' ') {
+                valid = 0;
+                break;
+            }
+        }
+        
+        if (!valid) {
+            printf("Error: Name must contain only letters and spaces.\n");
+            continue; // reprompt
+        }
+            
+        break; // valid name entered
+    }
+
+    while (1) {
+        printf("Enter Student Mark: ");
+        if (!fgets(buffer, sizeof(buffer), stdin)) continue;
+        
+        buffer[strcspn(buffer, "\n")] = '\0'; // remove newline
+        
+        float mark;
+        // sscanf returns 1 if it successfully read a float
+        if (sscanf(buffer, "%f", &mark) == 1) {
+            s.mark = mark;
+            
+            break; // valid input, exit loop
+            
+        } else {
+            printf("Error: Please enter a valid number.\n");
+        }
+    }
+
+    // Insert into the linked list (create a new node)
+    Node *newNode = malloc(sizeof(Node));
+    if (!newNode) {
+        puts("Error: Memory allocation failed.");
+        return;
+    }
+    newNode->s = s;
+    newNode->next = NULL;
+
+    // Add to end of list
+    if (!list->head) {
+        list->head = newNode;
+    } else {
+        Node *curr = list->head;
+        while (curr->next)
+            curr = curr->next;
+        curr->next = newNode;
+    }
+
+    printf("CMS: Student record with ID=%d successfully inserted.\n", s.id);
+
 }
 
 static int parse_id(const char *args, int *id)
