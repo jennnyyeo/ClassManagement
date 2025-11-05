@@ -263,3 +263,103 @@ void delete(LinkedList *list, const char *args)
         printf("CMS: The record with ID=%d does not exist.\n", id);
     }
 }
+
+void updateStudentRecord(LinkedList *list, const char *args)
+{
+    int id = 0;
+    if (!parse_id(args, &id))
+    {
+        puts("Use UPDATE ID =<id>");
+        return;
+    }
+    Node *n = list_find_by_id(list, id);
+    if (!n)
+    {
+        printf("CMS: The record with ID=%d does not exist.\n", id);
+        return;
+    }
+    printf("CMS: Record with ID=%d found.\n", id);
+    char buffer[128];
+
+    while(1)
+    {
+        printf("Enter new Student Name (current: %s): ", n->s.name);
+        if (!fgets(buffer, sizeof(buffer), stdin)) continue;
+        buffer[strcspn(buffer, "\n")] = '\0';
+
+        int valid = 1;
+        for (int i = 0; buffer[i] != '\0'; i++)
+        {
+            if (!isalpha((unsigned char)buffer[i]) && buffer[i] != ' ')
+            {
+                valid = 0;
+                break;
+            }
+        }
+    if (!valid)
+        {
+            printf("Error: Name must contain only letters and spaces.\n");
+            continue;
+        }
+    if (strlen(buffer) ==0)
+        {
+            printf("Error: Name cannot be empty. \n");
+            continue;
+        }
+    strncpy(n->s.name, buffer, MAX_NAME);
+    n->s.name[MAX_NAME -1] = '\0';
+    break;
+    }
+    while (1)
+    {
+        printf("Enter new Programme (current: %s): ", n->s.programme);
+        if (!fgets(buffer, sizeof(buffer), stdin)) continue;
+        buffer[strcspn(buffer, "\n")] = '\0';
+        
+        int valid = 1;
+        for (int i = 0; buffer[i] != '\0'; i++)
+        {
+            if (!isalpha((unsigned char)buffer[i]) && buffer[i] != ' ')
+            {
+                valid = 0;
+                break;
+            }
+        }
+        if (!valid)
+        {
+            printf("Error: Programme must contain only letters and spaces. \n");
+            continue;
+        }
+        if (strlen(buffer) == 0)
+        {
+            printf("Error: Programme cannot be empty. \n");
+            continue;
+        }
+        strncpy(n->s.programme, buffer, MAX_PROGRAM);
+        n->s.programme[MAX_PROGRAM -1] = '\0';
+        break;
+    }
+    while (1)
+    {
+        printf("Enter new Student Mark (current: %.2f): ", n->s.mark);
+        if (!fgets(buffer, sizeof(buffer), stdin)) continue;
+        buffer[strcspn(buffer, "\n")] = '\0';
+
+        float mark;
+        if (sscanf(buffer, "%f", &mark) == 1)
+        {
+            if (mark < 0.0 || mark > 100.0)
+            {
+                printf("Error: Mark must be between 0 and 100.\n");
+                continue;
+            }
+            n->s.mark = mark;
+            break;
+        }
+        else
+        {
+            printf("Error: Please enter a valid numeric mark.\n");
+        }
+    }
+    printf("CMS: The record with ID=%d is successfully updated.\n", id);
+    }

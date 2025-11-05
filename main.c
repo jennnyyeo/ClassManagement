@@ -70,7 +70,14 @@ int main(void)
 		{
 			puts("Please do: QUERY ID=<id> instead");
 		}
-
+		else if (strncmp(command, "UPDATE ", 7) == 0)
+		{
+			updateStudentRecord(&studentData, command + 7);
+		}
+		else if (strcmp(command, "UPDATE") == 0)
+		{
+			puts("Please do: UPDATE ID=<id> instead");
+		}
 		else if (strncmp(command, "DELETE ", 7) == 0)
 		{
 			delete(&studentData, command + 7);
