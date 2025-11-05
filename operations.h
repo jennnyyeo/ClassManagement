@@ -5,6 +5,6 @@
 
 int opendb(LinkedList* store, const char* filename);
 
-int savedb();
+int savedb(LinkedList *store, const char *filename);
 
 #endif

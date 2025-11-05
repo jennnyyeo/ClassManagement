@@ -18,19 +18,17 @@ static void rstrip(char *s)
 
 static void sanitize_field(char *dst, size_t cap, const char *src)
 {
-	if (!cap)
-		return;
-	size_t i = 0;
-	for (; src[i] && i < cap - 1; ++i)
-	{
-		char c = src[i];
-		if (c == '\t' || c == '\n' || c == '\r')
-		{
-			c = ' ';
-			dst[i] = c;
-		}
-	}
-	dst[i] = '\0';
+    if (!dst || cap == 0) return;
+    if (!src) { dst[0] = '\0'; return; }
+
+    size_t i = 0;
+    for (; src[i] && i < cap - 1; ++i) {
+        char c = src[i];
+        if (c == '\t' || c == '\n' || c == '\r')
+            c = ' ';
+        dst[i] = c;
+    }
+    dst[i] = '\0';
 }
 
 int opendb(LinkedList *store, const char *filename)
@@ -117,8 +115,6 @@ int opendb(LinkedList *store, const char *filename)
 			continue;
 		}
 
-
-
 		if (insert_node(store, &st) == -1)
 		{
 			fclose(f);
@@ -138,7 +134,8 @@ int savedb(LinkedList *store, const char *filename)
 
 	if (!f)
 	{
-		perror("opendb failed");
+		fprintf(stderr, "savedb: fopen(\"%s\") failed: ", filename);
+		perror("");
 		return -1;
 	}
 
@@ -151,12 +148,22 @@ int savedb(LinkedList *store, const char *filename)
 	}
 
 	// Rows
-	for (Node *p = store->head; p; p = p->next)
+	for (Node *p = store ? store->head : NULL; p; p = p->next) // Making sure that NUL-terminated sources even if structure fields are "full"
 	{
-		char name_san[FIELD_MAX + 1], prog_san[FIELD_MAX + 1];
-		sanitize_field(name_san, sizeof name_san, p->s.name);
-		sanitize_field(prog_san, sizeof prog_san, p->s.programme);
-		if (fprintf(f, "%s\t%s\n", name_san, prog_san) < 0)
+		char name_src[MAX_NAME + 1];
+		char prog_src[MAX_PROGRAM + 1];
+		memcpy(name_src, p->s.name, MAX_NAME);
+		name_src[MAX_NAME] = '\0';
+		memcpy(prog_src, p->s.programme, MAX_PROGRAM);
+		prog_src[MAX_PROGRAM] = '\0';
+
+		// Sanitize in order to remove any tabs/newlines which will break the TSV file
+		char name_san[MAX_NAME + 1], prog_san[MAX_PROGRAM + 1];
+		sanitize_field(name_san, sizeof name_san, name_src);
+		sanitize_field(prog_san, sizeof prog_san, prog_src);
+
+		// Writing all 4 of the
+		if (fprintf(f, "%d\t%s\t%s\t%.2f\n", p->s.id, name_san, prog_san, p->s.mark) < 0)
 		{
 			perror("savedb:fprintf");
 			fclose(f);
