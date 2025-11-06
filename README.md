@@ -27,12 +27,12 @@ It supports basic CRUD operations, sorting, and summary statistics.
 - operations.c - file operations (open/save)
 - P3_1-CMS.txt - student database file
 
-  ## Contributors
-  - Chiau Yee
-  - Harith
-  - Joel
-  - Jenny
-  - Kai Jun
+## Contributors
+- Chiau Yee
+- Harith
+- Joel
+- Jenny
+- Kai Jun
     
   
 
