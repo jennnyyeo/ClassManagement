@@ -1,2 +1,4 @@
 ID	Name	Programme	Mark
 2301234	Joshua Chen	Software Engineering	70.50
+2509876	Alice Tan	Information System	80.90
+2501011	Kelly Lam	Computer Science	65.00
