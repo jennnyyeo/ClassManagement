@@ -1,3 +1,38 @@
-# InventoryManagement
+# Class Management System (CMS)
 
-Testing push to main
+## Overview
+The CMS is a C-based consoloe application that manages student records.
+It supports basic CRUD operations, sorting, and summary statistics.
+
+## Features
+- OPEN
+- SHOW ALL
+- INSERT
+- QUERY
+- UPDATE
+- DELETE
+- SAVE
+
+## Extra Features
+- Sorting
+- Summary Statistics
+
+## How to run
+
+
+## File Structure
+- main.c - command processing loop
+- commands.c - implements CRUD operations
+- linked_list.c - linked list management (create, delete, find)
+- operations.c - file operations (open/save)
+- P3_1-CMS.txt - student database file
+
+## Contributors
+- Chiau Yee
+- Harith
+- Joel
+- Jenny
+- Kai Jun
+    
+  
+
