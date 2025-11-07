@@ -14,13 +14,12 @@ int main(void)
 	char command[256];
 	int fileopened = 0;
 
-	puts("Commands: OPEN | SHOW ALL | INSERT | QUERY ID=<id> | UPDATE ID=<id> | DELETE ID=<id> | EXIT | SAVE");
+	puts("Commands: OPEN | SHOW ALL | INSERT | QUERY ID=<id> | UPDATE ID=<id> | DELETE ID=<id> | EXIT | SAVE | HELP");
 	for (;;)
 	{
 		printf("Please input a command: ");
 		if (!fgets(command, sizeof(command), stdin))
 		{
-			puts("\nGoodbye.");
 			break;
 		}
 
@@ -30,6 +29,7 @@ int main(void)
 		// skip if empty
 		if (command[0] == '\0')
 		{
+			puts("No command entered.");
 			continue;
 		}
 
@@ -46,22 +46,18 @@ int main(void)
 			}
 			fileopened = 1;
 		}
-
 		else if (strcmp(command, "INSERT") == 0)
         {
             insertStudentRecords(&studentData);
         }
-
 		else if (strcmp(command, "SHOW ALL") == 0)
 		{
 			show_all_cmd(&studentData);
 		}
-
 		else if (strcmp(command, "EXIT") == 0)
 		{
 			break;
 		}
-
 		else if (strncmp(command, "QUERY ", 6) == 0)
 		{
 			query(&studentData, command + 6);
@@ -96,10 +92,14 @@ int main(void)
 			{
 				if (savedb(&studentData, "P3_1-CMS.txt") == -1)
 				{
-					printf("Failed to open, please free up some memory and try again. \n");
+					printf("Failed to open, please free up some memory and try again.\n");
 					continue;
 				}
 			}
+		}
+		else if (strcmp(command, "HELP") == 0)
+		{
+			printf("Commands: OPEN | SHOW ALL | INSERT | QUERY ID=<id> | UPDATE ID=<id> | DELETE ID=<id> | EXIT | SAVE | HELP\n");
 		}
 	}
 }
