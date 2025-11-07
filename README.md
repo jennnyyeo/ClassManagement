@@ -18,8 +18,11 @@ It supports basic CRUD operations, sorting, and summary statistics.
 - Summary Statistics
 
 ## How to run
-
-
+- Go to task.json
+- Click on CTRL + SHIFT + B to build the main.exe
+- Find main.exe
+- Open main.exe
+  
 ## File Structure
 - main.c - command processing loop
 - commands.c - implements CRUD operations
