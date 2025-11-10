@@ -48,7 +48,7 @@ int main(void)
 		}
 		else if (strcmp(command, "INSERT") == 0)
         {
-            insertStudentRecords(&studentData);
+            insertStudentRecords(&studentData, fileopened);
         }
 		else if (strcmp(command, "SHOW ALL") == 0)
 		{

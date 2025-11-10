@@ -33,9 +33,14 @@ void show_all_cmd(const LinkedList *list)
     printf("There are in total %zu record(s).\n", records);
 }
 
-void insertStudentRecords(LinkedList *list) 
+void insertStudentRecords(LinkedList *list, int fileOpened) 
 {
-    char buffer[128];
+    if (!fileOpened) {
+        printf("CMS: Please OPEN the database before inserting records.\n");
+        return; // exit the function immediately
+    }
+    
+    char buffer[22];
     int valid_id;
     Student s;
 
@@ -47,7 +52,7 @@ void insertStudentRecords(LinkedList *list)
 
         // Check length
         if (strlen(buffer) != 7) {
-            printf("Error: ID must be exactly 7 digits.\n");
+            printf("CMS: Student ID must be exactly 7 digits.\n");
             continue;
         }
 
@@ -61,21 +66,53 @@ void insertStudentRecords(LinkedList *list)
         }
 
         if (!valid) {
-            printf("Error: ID must contain only digits.\n");
+            printf("CMS: Student ID must contain only digits.\n");
             continue;
         }
 
-        // Valid ID
-        s.id = atoi(buffer);
-        break;
+        // Convert to integer
+        int id = atoi(buffer);
+        
+        // Check for duplicate in the linked list
+        Node *n = list->head;
+        int duplicate = 0;
+        
+        while (n) {
+            if (n->s.id == id) {
+                duplicate = 1;
+                break;
+            }
+            n = n->next;
+        }
+
+        if (duplicate) {
+            printf("CMS: Student record with ID=%d already exists.\n", id);
+            continue; // ask for ID again
+            }
+            
+            // Valid and unique ID
+            s.id = id;
+            break;
     }
 
     while (1) {
-        printf("Enter Student Name: ");
+        printf("Enter Student Name (max 22 characters): ");
         if (!fgets(s.name, MAX_NAME, stdin)) continue;
         s.name[strcspn(s.name, "\n")] = '\0'; // remove newline
+
+        // Check for empty input
+        if (strlen(s.name) == 0) {
+            printf("CMS: Student Name cannot be empty.\n");
+            continue; // reprompt
+        }
+
+        // Check maximum length
+        if (strlen(s.name) > 22) {
+            printf("CMS: Student Name cannot exceed 22 characters.\n");
+            continue; // reprompt
+        }
         
-        // Check that the name contains only letters or spaces
+        // Check that the name contains only letters
         int valid = 1;
         for (int i = 0; s.name[i] != '\0'; i++) {
             if (!isalpha((unsigned char)s.name[i]) && s.name[i] != ' ') {
@@ -85,7 +122,7 @@ void insertStudentRecords(LinkedList *list)
         }
         
         if (!valid) {
-            printf("Error: Name must contain only letters and spaces.\n");
+            printf("CMS: Student Name must contain only letters.\n");
             continue; // reprompt
         }
             
@@ -96,8 +133,14 @@ void insertStudentRecords(LinkedList *list)
         printf("Enter Programme: ");
         if (!fgets(s.programme, MAX_PROGRAM, stdin)) continue;
         s.programme[strcspn(s.programme, "\n")] = '\0'; // remove newline
+
+        // Check for empty input
+        if (strlen(s.programme) == 0) {
+            printf("CMS: Programme cannot be empty.\n");
+            continue; // reprompt
+            }
         
-        // Check that the name contains only letters or spaces
+        // Check that the programme contains only letters
         int valid = 1;
         for (int i = 0; s.programme[i] != '\0'; i++) {
             if (!isalpha((unsigned char)s.programme[i]) && s.programme[i] != ' ') {
@@ -107,7 +150,7 @@ void insertStudentRecords(LinkedList *list)
         }
         
         if (!valid) {
-            printf("Error: Name must contain only letters and spaces.\n");
+            printf("CMS: Programme must contain only letters.\n");
             continue; // reprompt
         }
             
@@ -123,6 +166,12 @@ void insertStudentRecords(LinkedList *list)
         float mark;
         // sscanf returns 1 if it successfully read a float
         if (sscanf(buffer, "%f", &mark) == 1) {
+            // check valid range
+            if (mark < 0 || mark > 100) {
+                printf("CMS: Mark must be between 0 and 100.\n");
+                continue; // reprompt
+            }
+
             s.mark = mark;
             
             break; // valid input, exit loop
