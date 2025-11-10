@@ -323,7 +323,7 @@ void updateStudentRecord(LinkedList *list, const char *args)
     int id = 0;
     if (!parse_id(args, &id))
     {
-        puts("Use UPDATE ID =<id>");
+        puts("CMS: Use UPDATE ID =<id>");
         return;
     }
     Node *n = list_find_by_id(list, id);
@@ -334,12 +334,18 @@ void updateStudentRecord(LinkedList *list, const char *args)
     }
     printf("CMS: Record with ID=%d found.\n", id);
     char buffer[128];
+    int fieldUpdated = 0; // just to keep track if anything is modified
 
     while(1)
     {
         printf("Enter new Student Name (current: %s): ", n->s.name);
         if (!fgets(buffer, sizeof(buffer), stdin)) continue;
         buffer[strcspn(buffer, "\n")] = '\0';
+
+        if (strlen(buffer) == 0) // this is if user pressed enter means no modification 
+        {
+            break;
+        }
 
         int valid = 1;
         for (int i = 0; buffer[i] != '\0'; i++)
@@ -355,13 +361,14 @@ void updateStudentRecord(LinkedList *list, const char *args)
             printf("Error: Name must contain only letters and spaces.\n");
             continue;
         }
-    if (strlen(buffer) ==0)
-        {
-            printf("Error: Name cannot be empty. \n");
-            continue;
-        }
+   // if (strlen(buffer) ==0)
+      //  {
+        //    printf("Error: Name cannot be empty. \n");
+        //    continue;
+      //  }
     strncpy(n->s.name, buffer, MAX_NAME);
     n->s.name[MAX_NAME -1] = '\0';
+    fieldUpdated = 1;
     break;
     }
     while (1)
@@ -370,6 +377,10 @@ void updateStudentRecord(LinkedList *list, const char *args)
         if (!fgets(buffer, sizeof(buffer), stdin)) continue;
         buffer[strcspn(buffer, "\n")] = '\0';
         
+        if (strlen(buffer) == 0) // if user press enter means no modficiation
+        {
+            break;
+        }
         int valid = 1;
         for (int i = 0; buffer[i] != '\0'; i++)
         {
@@ -384,13 +395,14 @@ void updateStudentRecord(LinkedList *list, const char *args)
             printf("Error: Programme must contain only letters and spaces. \n");
             continue;
         }
-        if (strlen(buffer) == 0)
-        {
-            printf("Error: Programme cannot be empty. \n");
-            continue;
-        }
+        //if (strlen(buffer) == 0)
+        //{
+         //   printf("Error: Programme cannot be empty. \n");
+        //    continue;
+      //  }
         strncpy(n->s.programme, buffer, MAX_PROGRAM);
         n->s.programme[MAX_PROGRAM -1] = '\0';
+        fieldUpdated = 1;
         break;
     }
     while (1)
@@ -399,6 +411,11 @@ void updateStudentRecord(LinkedList *list, const char *args)
         if (!fgets(buffer, sizeof(buffer), stdin)) continue;
         buffer[strcspn(buffer, "\n")] = '\0';
 
+        if (strlen(buffer) == 0)
+        {
+            break;
+        }
+        
         float mark;
         if (sscanf(buffer, "%f", &mark) == 1)
         {
@@ -408,6 +425,7 @@ void updateStudentRecord(LinkedList *list, const char *args)
                 continue;
             }
             n->s.mark = mark;
+            fieldUpdated = 1;
             break;
         }
         else
@@ -415,9 +433,16 @@ void updateStudentRecord(LinkedList *list, const char *args)
             printf("Error: Please enter a valid numeric mark.\n");
         }
     }
-    printf("CMS: The record with ID=%d is successfully updated.\n", id);
+    if (fieldUpdated)
+    {
+        printf("CMS: The record with ID=%d is successfully updated. \n", id);
+    }
+    else
+    {
+        printf("CMS: No changes made to the record with ID=%d. \n", id);
+    }
 }
-
+   
 // swap two students
 void swapStudents(Node *a, Node *b) {
     Student temp = a -> s;
