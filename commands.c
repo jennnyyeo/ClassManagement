@@ -13,8 +13,13 @@ static const char *skip_ws(const char *p)
     return p;
 }
 
-void show_all_cmd(const LinkedList *list)
+void show_all_cmd(const LinkedList *list, int fileOpened)
 {
+    if (!fileOpened) {
+        printf("CMS: Please OPEN the database before inserting records.\n");
+        return; // exit the function immediately
+    }
+
     if (!list || !list->head)
     {
         puts("(no records)");
@@ -411,4 +416,48 @@ void updateStudentRecord(LinkedList *list, const char *args)
         }
     }
     printf("CMS: The record with ID=%d is successfully updated.\n", id);
-    }
+}
+
+// swap two students
+void swapStudents(Node *a, Node *b) {
+    Student temp = a -> s;
+    a -> s = b -> s;
+    b -> s = temp;
+}
+
+// sort linked list by ID or MARK
+void bubbleSortLinkedList(LinkedList *list, const char *field, int ascending) {
+    if (!list || !list -> head || !list -> head -> next) return;
+
+    int swapped; 
+    Node *ptr; 
+    Node *lptr = NULL; 
+
+    do { 
+        swapped = 0; 
+        ptr = list -> head; 
+
+        while (ptr -> next != lptr) { 
+            int cmp = 0;
+
+            if (strcmp(field, "ID") == 0) {
+                cmp = ptr -> s.id - ptr -> next -> s.id;
+            } else if (strcmp(field, "MARK") == 0) {
+                if (ptr -> s.mark > ptr -> next -> s.mark) cmp = 1;
+                else if (ptr -> s.mark < ptr -> next -> s.mark) cmp = -1;
+                else cmp = 0;
+            }
+
+            if (!ascending) cmp = -cmp;
+
+            if (cmp > 0) {
+                swapStudents(ptr, ptr -> next);
+                swapped = 1;
+            }
+
+            ptr = ptr -> next;
+        }
+        
+        lptr = ptr;
+    } while (swapped);
+}

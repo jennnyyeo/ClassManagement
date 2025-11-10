@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "commands.h"
 #include "operations.h"
 #include "linked_list.h"
@@ -46,42 +47,111 @@ int main(void)
 			}
 			fileopened = 1;
 		}
+
+		else if (strncmp(command, "SHOW ALL", 8) == 0) {
+			if (!fileopened) {
+				printf("CMS: Please OPEN the database before displaying records.\n");
+				continue;
+			}
+
+			char choice[10];
+			
+			// Ask if user wants to sort
+			while (1) {
+				printf("Do you want to sort the records? (Y/N): ");
+
+				if (!fgets(choice, sizeof(choice), stdin)) continue;
+				choice[strcspn(choice, "\n")] = '\0';
+				// Convert to uppercase for consistency
+				char c = toupper((unsigned char)choice[0]);
+				
+				if (c == 'Y' || c == 'N') {
+					if (c == 'N') {
+						show_all_cmd(&studentData, fileopened);
+						break; // skip sorting
+					}
+					
+					// If 'Y', proceed to sorting
+					while (1) {
+						printf("Sort by ID or MARK? Enter ID or MARK: ");
+						if (!fgets(choice, sizeof(choice), stdin)) continue;
+						
+						choice[strcspn(choice, "\n")] = '\0';
+						// Convert to uppercase for consistency
+						for (int i = 0; choice[i]; i++)
+						choice[i] = toupper((unsigned char)choice[i]);
+
+						if (strcmp(choice, "ID") == 0 || strcmp(choice, "MARK") == 0) {
+							char order[10];
+							int ascending = 1; // default
+							
+							while (1) {
+								printf("Sort ascending or descending? (A/D): ");
+								
+								if (!fgets(order, sizeof(order), stdin)) continue;
+								order[strcspn(order, "\n")] = '\0';
+								// Convert to uppercase for consistency
+								char o = toupper((unsigned char)order[0]);
+								
+								if (o == 'A') { ascending = 1; break; }
+								else if (o == 'D') { ascending = 0; break; }
+								else { printf("CMS: Please enter A or D.\n"); }
+							}
+							
+							bubbleSortLinkedList(&studentData, choice, ascending);
+							show_all_cmd(&studentData, fileopened);
+							break; // done sorting
+						} else {
+							printf("CMS: Please enter either ID or MARK.\n");
+						}
+					}
+					break; // done with SHOW ALL command
+				} else {
+					printf("CMS: Please enter Y or N.\n");
+				}
+			}
+		}
+
 		else if (strcmp(command, "INSERT") == 0)
         {
             insertStudentRecords(&studentData, fileopened);
         }
-		else if (strcmp(command, "SHOW ALL") == 0)
-		{
-			show_all_cmd(&studentData);
-		}
+		
 		else if (strcmp(command, "EXIT") == 0)
 		{
 			break;
 		}
+
 		else if (strncmp(command, "QUERY ", 6) == 0)
 		{
 			query(&studentData, command + 6);
 		}
+
 		else if (strcmp(command, "QUERY") == 0)
 		{
 			puts("Please do: QUERY ID=<id> instead");
 		}
+
 		else if (strncmp(command, "UPDATE ", 7) == 0)
 		{
 			updateStudentRecord(&studentData, command + 7);
 		}
+
 		else if (strcmp(command, "UPDATE") == 0)
 		{
 			puts("Please do: UPDATE ID=<id> instead");
 		}
+
 		else if (strncmp(command, "DELETE ", 7) == 0)
 		{
 			delete(&studentData, command + 7);
 		}
+
 		else if (strcmp(command, "DELETE") == 0)
 		{
 			puts("Please do: DELETE ID=<id> instead");
 		}
+
 		else if (strcmp(command, "SAVE") == 0)
 		{
 			if (fileopened == 0)
@@ -97,6 +167,7 @@ int main(void)
 				}
 			}
 		}
+
 		else if (strcmp(command, "HELP") == 0)
 		{
 			printf("Commands: OPEN | SHOW ALL | INSERT | QUERY ID=<id> | UPDATE ID=<id> | DELETE ID=<id> | EXIT | SAVE | HELP\n");
