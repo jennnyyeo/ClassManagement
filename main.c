@@ -16,6 +16,7 @@ int main(void)
 	int fileopened = 0;
 
 	puts("Commands: OPEN | SHOW ALL | INSERT | QUERY ID=<id> | UPDATE ID=<id> | DELETE ID=<id> | EXIT | SAVE | HELP");
+	puts("Notes: Changes are automatically saved to 'autosave.txt' after each modification.\n");
 	for (;;)
 	{
 		printf("Please input a command: ");
@@ -115,6 +116,7 @@ int main(void)
 		else if (strcmp(command, "INSERT") == 0)
         {
             insertStudentRecords(&studentData, fileopened);
+			autoSave(&studentData);
         }
 		
 		else if (strcmp(command, "EXIT") == 0)
@@ -135,6 +137,7 @@ int main(void)
 		else if (strncmp(command, "UPDATE ", 7) == 0)
 		{
 			updateStudentRecord(&studentData, command + 7);
+			autoSave(&studentData);
 		}
 
 		else if (strcmp(command, "UPDATE") == 0)
@@ -145,6 +148,7 @@ int main(void)
 		else if (strncmp(command, "DELETE ", 7) == 0)
 		{
 			delete(&studentData, command + 7);
+			autoSave(&studentData);
 		}
 
 		else if (strcmp(command, "DELETE") == 0)
@@ -165,6 +169,7 @@ int main(void)
 					printf("Failed to open, please free up some memory and try again.\n");
 					continue;
 				}
+				autoSave(&studentData);
 			}
 		}
 
