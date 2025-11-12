@@ -176,19 +176,21 @@ int savedb(LinkedList *store, const char *filename)
 		perror("savedb:fclose");
 		return -1;
 	}
-	puts("File successfully saved.");
 	return 0;
 }
 
 
-int autoSave(LinkedList *list)
+int autoSave(LinkedList *list, int fileOpened)
 {
-	int result = savedb(list, "autosave.txt");
-	if (result == -1)
+	if(fileOpened)
 	{
-		printf("Error: Autosave failed.\n");
-		return -1;
+		int result = savedb(list, "autosave.txt");
+		if (result == -1)
+		{
+			printf("Error: Autosave failed.\n");
+			return -1;
+		}
+		printf("CMS: Autosave completed. (autosave.txt updated) \n");
+		return 0;
 	}
-	printf("CMS: Autosave completed. (autosave.txt updated) \n");
-	return 0;
 }

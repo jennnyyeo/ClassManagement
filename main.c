@@ -116,7 +116,7 @@ int main(void)
 		else if (strcmp(command, "INSERT") == 0)
         {
             insertStudentRecords(&studentData, fileopened);
-			autoSave(&studentData);
+			autoSave(&studentData, fileopened);
         }
 		
 		else if (strcmp(command, "EXIT") == 0)
@@ -137,7 +137,7 @@ int main(void)
 		else if (strncmp(command, "UPDATE ", 7) == 0)
 		{
 			updateStudentRecord(&studentData, command + 7);
-			autoSave(&studentData);
+			autoSave(&studentData, fileopened);
 		}
 
 		else if (strcmp(command, "UPDATE") == 0)
@@ -148,7 +148,7 @@ int main(void)
 		else if (strncmp(command, "DELETE ", 7) == 0)
 		{
 			delete(&studentData, command + 7);
-			autoSave(&studentData);
+			autoSave(&studentData, fileopened);
 		}
 
 		else if (strcmp(command, "DELETE") == 0)
@@ -169,7 +169,7 @@ int main(void)
 					printf("Failed to open, please free up some memory and try again.\n");
 					continue;
 				}
-				autoSave(&studentData);
+				puts("File successfully saved.");
 			}
 		}
 

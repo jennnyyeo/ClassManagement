@@ -7,6 +7,6 @@ int opendb(LinkedList* store, const char* filename);
 
 int savedb(LinkedList *store, const char *filename);
 
-int autoSave(LinkedList *list);
+int autoSave(LinkedList *list, int fileOpened);
 
 #endif
