@@ -31,7 +31,7 @@ static void sanitize_field(char *dst, size_t cap, const char *src)
     dst[i] = '\0';
 }
 
-int opendb(LinkedList *store, const char *filename)
+int opendb(LinkedList *store, const char *filename, int fileOpened)
 {
 	FILE *f = fopen(filename, "r");
 
@@ -124,7 +124,10 @@ int opendb(LinkedList *store, const char *filename)
 	}
 
 	fclose(f);
-	printf("File has been successfully opened and read. Loaded %zu record(s).\n", loaded);
+	if (fileOpened == 0)
+	{
+		printf("File has been successfully opened and read. Loaded %zu record(s).\n", loaded);
+	}
 	return 0;
 }
 
@@ -193,4 +196,37 @@ int autoSave(LinkedList *list, int fileOpened)
 		printf("CMS: Autosave completed. (autosave.txt updated) \n");
 		return 0;
 	}
+}
+
+int recoverChanges(const char *dbFile, const char *asFile)
+{
+	FILE *fdb, *fas;
+	int char1, char2;
+	int result = 0;
+
+	fdb = fopen(dbFile, "r");
+	fas = fopen(asFile, "r");
+
+	if (fdb == NULL || fas == NULL)
+	{
+		perror("Error opening files.\n");
+		return -1;
+	}
+
+	do
+	{
+		char1 = fgetc(fdb);
+		char2 = fgetc(fas);
+
+		if (char1 != char2)
+		{
+			result = 1;
+			break;
+		}
+	} while (char1 != EOF && char2 != EOF);
+	
+	fclose(fdb);
+	fclose(fas);
+
+	return result;
 }

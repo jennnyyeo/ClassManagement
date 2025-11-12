@@ -15,8 +15,56 @@ int main(void)
 	char command[256];
 	int fileopened = 0;
 
+	if(recoverChanges("P3_1-CMS.txt", "autosave.txt"))
+	{
+		char choice[10];
+
+		puts("CMS: There are changes to recover.");
+		opendb(&studentData, "P3_1-CMS.txt", fileopened);
+		fileopened = 1;
+		puts("CMS: This is the current database state:");
+		show_all_cmd(&studentData, fileopened);
+		list_clear(&studentData);
+		fileopened = 0;
+		opendb(&studentData, "autosave.txt", fileopened);
+		fileopened = 1;
+		puts("\nCMS: This is the altered database:");
+		show_all_cmd(&studentData, fileopened);
+		printf("Would you like to recover the changes? (Y/N): ");
+
+		while (1)
+		{
+			if (!fgets(choice, sizeof(choice), stdin)) continue;
+				choice[strcspn(choice, "\n")] = '\0';
+				// Convert to uppercase for consistency
+				char c = toupper((unsigned char)choice[0]);
+				if (c == 'Y' || c == 'N')
+				{
+					if (c == 'N') 
+					{
+						list_clear(&studentData);
+						opendb(&studentData, "P3_1-CMS.txt", fileopened);
+						autoSave(&studentData, fileopened);
+						puts("CMS: Changes discarded.\n");
+						break;
+					}
+					else if (c == 'Y')
+					{
+						savedb(&studentData, "P3_1-CMS.txt");
+						puts("CMS: Changes saved.\n");
+						break;
+					}
+				}
+				else
+				{
+					puts("CMS: Please enter Y or N.");
+				}	
+		}
+
+	}
+
 	puts("Commands: OPEN | SHOW ALL | INSERT | QUERY ID=<id> | UPDATE ID=<id> | DELETE ID=<id> | EXIT | SAVE | HELP");
-	puts("Notes: Changes are automatically saved to 'autosave.txt' after each modification.\n");
+	puts("Notes: Changes are automatically saved to 'autosave.txt' after each modification.");
 	for (;;)
 	{
 		printf("Please input a command: ");
@@ -39,12 +87,15 @@ int main(void)
 		{
 			if (fileopened == 1)
 			{
-				printf("File has already been opened");
+				printf("CMS: File has already been opened.\n");
 			}
-			if (opendb(&studentData, "P3_1-CMS.txt") == -1)
+			if(fileopened == 0)
 			{
-				printf("Failed to open, please free up some memory and try again. \n");
-				continue;
+				if (opendb(&studentData, "P3_1-CMS.txt", fileopened) == -1)
+				{
+					printf("Failed to open, please free up some memory and try again. \n");
+					continue;
+				}
 			}
 			fileopened = 1;
 		}
