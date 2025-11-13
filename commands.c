@@ -487,7 +487,7 @@ void bubbleSortLinkedList(LinkedList *list, const char *field, int ascending) {
     } while (swapped);
 }
 
-// SUMMARY
+// calculate and display summary statistics
 void show_summary(const LinkedList *list)
 {
     if (!list || !list->head)

@@ -63,7 +63,7 @@ int main(void)
 
 	}
 
-	puts("Commands: OPEN | SHOW ALL | INSERT | QUERY ID=<id> | UPDATE ID=<id> | DELETE ID=<id> | EXIT | SAVE | HELP");
+	puts("Commands: OPEN | SHOW ALL | SUMMARY | INSERT | QUERY ID=<id> | UPDATE ID=<id> | DELETE ID=<id> | EXIT | SAVE | HELP");
 	puts("Notes: Changes are automatically saved to 'autosave.txt' after each modification.");
 	for (;;)
 	{
@@ -226,11 +226,20 @@ int main(void)
 
 		else if (strcmp(command, "HELP") == 0)
 		{
-			printf("Commands: OPEN | SHOW ALL | INSERT | QUERY ID=<id> | UPDATE ID=<id> | DELETE ID=<id> | EXIT | SAVE | HELP\n");
+		puts("Commands: OPEN | SHOW ALL | SUMMARY | INSERT | QUERY ID=<id> | UPDATE ID=<id> | DELETE ID=<id> | EXIT | SAVE | HELP");
 		}
+
 		else if (strcmp(command, "SUMMARY") == 0)  
         {
+			if(!fileopened)
+			{
+				puts("CMS: Please OPEN the database before displaying summary.");
+				continue;
+			}
+			else
+			{
             show_summary(&studentData);
+			}
         }
 	}
 }
