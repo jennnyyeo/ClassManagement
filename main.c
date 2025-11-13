@@ -228,5 +228,9 @@ int main(void)
 		{
 			printf("Commands: OPEN | SHOW ALL | INSERT | QUERY ID=<id> | UPDATE ID=<id> | DELETE ID=<id> | EXIT | SAVE | HELP\n");
 		}
+		else if (strcmp(command, "SUMMARY") == 0)  
+        {
+            show_summary(&studentData);
+        }
 	}
 }
