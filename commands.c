@@ -486,3 +486,65 @@ void bubbleSortLinkedList(LinkedList *list, const char *field, int ascending) {
         lptr = ptr;
     } while (swapped);
 }
+
+// SUMMARY
+void show_summary(const LinkedList *list)
+{
+    if (!list || !list->head)
+    {
+        printf("Total number of students: 0\n");
+        printf("Average mark: 0.00\n");
+        printf("Highest mark: N/A\n");
+        printf("Lowest mark: N/A\n");
+        return;
+    }
+
+    size_t total_students = 0;
+    float total_marks = 0.0;
+    float highest_mark = -1.0;
+    float lowest_mark = 101.0;
+    char highest_name[MAX_NAME] = "";
+    char lowest_name[MAX_NAME] = "";
+
+    // Calculate statistics
+    for (const Node *n = list->head; n; n = n->next)
+    {
+        total_students++;
+        total_marks += n->s.mark;
+
+        // Check for highest mark
+        if (n->s.mark > highest_mark)
+        {
+            highest_mark = n->s.mark;
+            strncpy(highest_name, n->s.name, MAX_NAME - 1);
+            highest_name[MAX_NAME - 1] = '\0';
+        }
+
+        // Check for lowest mark
+        if (n->s.mark < lowest_mark)
+        {
+            lowest_mark = n->s.mark;
+            strncpy(lowest_name, n->s.name, MAX_NAME - 1);
+            lowest_name[MAX_NAME - 1] = '\0';
+        }
+    }
+
+    // Calculate average
+    float average_mark = total_students > 0 ? total_marks / total_students : 0.0;
+
+    // Display summary
+    printf("CMS: Summary Statistics\n");
+    printf("Total number of students: %zu\n", total_students);
+    printf("Average mark: %.2f\n", average_mark);
+    
+    if (total_students > 0)
+    {
+        printf("Highest mark: %.2f (%s)\n", highest_mark, highest_name);
+        printf("Lowest mark: %.2f (%s)\n", lowest_mark, lowest_name);
+    }
+    else
+    {
+        printf("Highest mark: N/A\n");
+        printf("Lowest mark: N/A\n");
+    }
+}
