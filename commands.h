@@ -10,5 +10,6 @@ void delete(LinkedList *list, const char *args);
 void updateStudentRecord(LinkedList *list, const char * args);
 void swapStudents(Node *a, Node *b);
 void bubbleSortLinkedList(LinkedList *list, const char *field, int ascending);
+void show_summary(const LinkedList *list);
 #endif
 
