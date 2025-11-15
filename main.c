@@ -1,132 +1,308 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include "commands.h"
+#include "operations.h"
 #include "linked_list.h"
-#include <stdlib.h>
 
-/*
- * create_node:
- * - Small helper that allocates a new Node on the heap.
- * - Copies the Student data from *st into the node.
- * - Sets next to NULL so the caller can link it properly.
- *
- * Returns:
- *   pointer to the new Node on success
- *   NULL if malloc fails
- */
-Node* create_node(const Student* st) {
-    Node* newNode = (Node*)malloc(sizeof * newNode);
-    if (!newNode) {
-        // If I can't allocate memory, I just return NULL and let the caller handle it
-        return 0;
-    }
+int main(void)
+{
+    // This linked list will store all the student records in memory
+    LinkedList studentData;
+    studentData.head = NULL;
+    studentData.tail = NULL;
 
-    newNode->s    = *st;   // copy the whole Student struct by value
-    newNode->next = NULL;  // new node is not linked to anything yet
+    char command[256];      // buffer to store user command input
+    int fileopened = 0;     // flag to track whether the main DB file has been opened
 
-    return newNode;
-}
+    /*
+     * On startup, I check if there are any changes to recover by comparing
+     * the main DB file (P3_1-CMS.txt) with the autosave file (autosave.txt).
+     * If they differ, I give the user a chance to restore the autosaved state.
+     */
+    if (recoverChanges("P3_1-CMS.txt", "autosave.txt"))
+    {
+        char choice[10];
 
-/*
- * insert_node:
- * - Inserts a new Student at the end of the linked list.
- * - Uses create_node() to allocate and set up the node.
- * - Updates both head and tail pointers when needed.
- *
- * Returns:
- *   0  on success
- *  -1  if allocation failed
- */
-int insert_node(LinkedList* L, const Student* st) {
-    Node* newNode = create_node(st);
-    if (!newNode) {
-        return -1;                    // allocation failed
-    }
+        puts("CMS: There are changes to recover.");
 
-    if (!L->head) {                   // empty list: head and tail become newNode
-        L->head = L->tail = newNode;
-    } else {                          // non-empty list: append to current tail
-        L->tail->next = newNode;
-        L->tail       = newNode;
-    }
-    return 0;                         // success
-}
+        // First, open and show the original DB file so the user can see the baseline
+        opendb(&studentData, "P3_1-CMS.txt", fileopened);
+        fileopened = 1;
+        puts("CMS: This is the current database state:");
+        show_all_cmd(&studentData, fileopened);
 
-/*
- * list_init:
- * - Simple initialiser for a LinkedList.
- * - Sets both head and tail to NULL so the list starts off empty.
- */
-void list_init(LinkedList* L) {
-    L->head = L->tail = NULL;
-}
+        // Clear the list and then open the autosave version to show the "altered" state
+        list_clear(&studentData);
+        fileopened = 0;
+        opendb(&studentData, "autosave.txt", fileopened);
+        fileopened = 1;
+        puts("\nCMS: This is the altered database:");
+        show_all_cmd(&studentData, fileopened);
 
-/*
- * list_clear:
- * - Walks through the entire list and frees every node.
- * - At the end, both head and tail are set to NULL.
- *
- * I use this to clean up when the program exits or when switching files.
- */
-void list_clear(LinkedList* L) {
-    for (Node* p = L->head; p;) {
-        Node* n = p->next;  // remember next before freeing
-        free(p);
-        p = n;
-    }
-    L->head = L->tail = NULL;
-}
+        // Ask user if they want to recover the autosaved changes
+        printf("Would you like to recover the changes? (Y/N): ");
 
-/*
- * list_find_by_id:
- * - Linearly searches the list for the first node whose Student.id matches
- *   the given id.
- *
- * Returns:
- *   pointer to the matching Node
- *   NULL if no such node exists
- */
-Node* list_find_by_id(LinkedList* L, int id) {
-    for (Node* p = L->head; p; p = p->next) {
-        if (p->s.id == id) {
-            return p;
+        while (1)
+        {
+            if (!fgets(choice, sizeof(choice), stdin)) 
+                continue;
+
+            choice[strcspn(choice, "\n")] = '\0';
+
+            // Just look at the first character and normalise to uppercase
+            char c = toupper((unsigned char)choice[0]);
+
+            if (c == 'Y' || c == 'N')
+            {
+                if (c == 'N') 
+                {
+                    // User chose NOT to keep autosave → reload original DB and overwrite autosave
+                    list_clear(&studentData);
+                    opendb(&studentData, "P3_1-CMS.txt", fileopened);
+                    autoSave(&studentData, fileopened);
+                    puts("CMS: Changes discarded.\n");
+                    break;
+                }
+                else if (c == 'Y')
+                {
+                    // User chose to recover autosave → save autosave content back to main DB file
+                    savedb(&studentData, "P3_1-CMS.txt");
+                    puts("CMS: Changes saved.\n");
+                    break;
+                }
+            }
+            else
+            {
+                puts("CMS: Please enter Y or N.");
+            }	
         }
     }
-    return NULL;
-}
 
-/*
- * list_delete_by_id:
- * - Removes the first node in the list whose Student.id matches id.
- * - Relinks the previous node to skip over the deleted one.
- * - If the deleted node was the head, updates head accordingly.
- * - Frees the memory of the deleted node.
- *
- * Returns:
- *   1  if a node was found and deleted
- *   0  if no node with that id exists in the list
- */
-int list_delete_by_id(LinkedList* L, int id) {
-    Node* prev = NULL;
-    Node* cur  = L->head;
+    // Show basic help so the user knows what commands are available
+    puts("Commands: OPEN | SHOW ALL | SUMMARY | INSERT | QUERY ID=<id> | UPDATE ID=<id> | DELETE ID=<id> | EXIT | SAVE | HELP");
+    puts("Notes: Changes are automatically saved to 'autosave.txt' after each modification.");
 
-    while (cur) {
-        if (cur->s.id == id) {
-            // If we're not at the head, bypass the current node
-            if (prev) {
-                prev->next = cur->next;
-            }
-            else {
-                // If we are deleting the head, move head forward
-                L->head = cur->next;
-            }
-
-            // Note: In my current use cases, I don't rely heavily on tail here.
-            // If I delete the last node, tail might become stale, but it's not
-            // causing an issue for the way I'm iterating over the list.
-
-            free(cur);
-            return 1;
+    /*
+     * Main command loop:
+     * - Prompts the user for a command.
+     * - Parses it and dispatches to the corresponding function.
+     * - Loop terminates when user enters EXIT or EOF.
+     */
+    for (;;)
+    {
+        printf("Please input a command: ");
+        if (!fgets(command, sizeof(command), stdin))
+        {
+            // On EOF or read error, just break out of the loop and exit
+            break;
         }
-        prev = cur;
-        cur  = cur->next;
+
+        // Remove trailing newline from the command
+        command[strcspn(command, "\n")] = '\0';
+
+        // Handle empty input
+        if (command[0] == '\0')
+        {
+            puts("No command entered.");
+            continue;
+        }
+
+        /* ---------- OPEN ---------- */
+        if (strcmp(command, "OPEN") == 0)
+        {
+            if (fileopened == 1)
+            {
+                printf("CMS: File has already been opened.\n");
+            }
+            if (fileopened == 0)
+            {
+                // Try to open the main database file
+                if (opendb(&studentData, "P3_1-CMS.txt", fileopened) == -1)
+                {
+                    printf("Failed to open, please free up some memory and try again. \n");
+                    continue;
+                }
+            }
+            fileopened = 1;
+        }
+
+        /* ---------- SHOW ALL (with optional sorting) ---------- */
+        else if (strncmp(command, "SHOW ALL", 8) == 0) {
+            if (!fileopened) {
+                printf("CMS: Please OPEN the database before displaying records.\n");
+                continue;
+            }
+
+            char choice[10];
+            
+            // Ask if user wants to sort the records before showing them
+            while (1) {
+                printf("Do you want to sort the records? (Y/N): ");
+
+                if (!fgets(choice, sizeof(choice), stdin)) continue;
+                choice[strcspn(choice, "\n")] = '\0';
+
+                // Normalise first char to uppercase
+                char c = toupper((unsigned char)choice[0]);
+                
+                if (c == 'Y' || c == 'N') {
+                    if (c == 'N') {
+                        // No sorting, just show as-is
+                        show_all_cmd(&studentData, fileopened);
+                        break; // skip sorting
+                    }
+                    
+                    // If 'Y', ask what to sort by (ID or MARK)
+                    while (1) {
+                        printf("Sort by ID or MARK? Enter ID or MARK: ");
+                        if (!fgets(choice, sizeof(choice), stdin)) continue;
+                        
+                        choice[strcspn(choice, "\n")] = '\0';
+
+                        // Convert entire word to uppercase for easier comparison
+                        for (int i = 0; choice[i]; i++)
+                            choice[i] = toupper((unsigned char)choice[i]);
+
+                        if (strcmp(choice, "ID") == 0 || strcmp(choice, "MARK") == 0) {
+                            char order[10];
+                            int ascending = 1; // default sort order is ascending
+                            
+                            // Ask for sorting order (ascending/descending)
+                            while (1) {
+                                printf("Sort ascending or descending? (A/D): ");
+                                
+                                if (!fgets(order, sizeof(order), stdin)) continue;
+                                order[strcspn(order, "\n")] = '\0';
+
+                                char o = toupper((unsigned char)order[0]);
+                                
+                                if (o == 'A') { 
+                                    ascending = 1; 
+                                    break; 
+                                }
+                                else if (o == 'D') { 
+                                    ascending = 0; 
+                                    break; 
+                                }
+                                else { 
+                                    printf("CMS: Please enter A or D.\n"); 
+                                }
+                            }
+                            
+                            // Perform the bubble sort on the linked list
+                            bubbleSortLinkedList(&studentData, choice, ascending);
+                            // And then display the sorted list
+                            show_all_cmd(&studentData, fileopened);
+                            break; // done sorting
+                        } else {
+                            printf("CMS: Please enter either ID or MARK.\n");
+                        }
+                    }
+                    break; // done with SHOW ALL command
+                } else {
+                    printf("CMS: Please enter Y or N.\n");
+                }
+            }
+        }
+
+        /* ---------- INSERT ---------- */
+        else if (strcmp(command, "INSERT") == 0)
+        {
+            insertStudentRecords(&studentData, fileopened);
+            // After modifying the list, auto-save to autosave.txt
+            autoSave(&studentData, fileopened);
+        }
+		
+        /* ---------- EXIT ---------- */
+        else if (strcmp(command, "EXIT") == 0)
+        {
+            // Just break out of the main loop and end the program
+            break;
+        }
+
+        /* ---------- QUERY ID=<id> ---------- */
+        else if (strncmp(command, "QUERY ", 6) == 0)
+        {
+            // Pass arguments after "QUERY " to the query function
+            query(&studentData, command + 6);
+        }
+        else if (strcmp(command, "QUERY") == 0)
+        {
+            // User forgot to specify ID, give a friendly hint
+            puts("Please do: QUERY ID=<id> instead");
+        }
+
+        /* ---------- UPDATE ID=<id> ---------- */
+        else if (strncmp(command, "UPDATE ", 7) == 0)
+        {
+            updateStudentRecord(&studentData, command + 7);
+            autoSave(&studentData, fileopened);
+        }
+        else if (strcmp(command, "UPDATE") == 0)
+        {
+            puts("Please do: UPDATE ID=<id> instead");
+        }
+
+        /* ---------- DELETE ID=<id> ---------- */
+        else if (strncmp(command, "DELETE ", 7) == 0)
+        {
+            delete(&studentData, command + 7);
+            autoSave(&studentData, fileopened);
+        }
+        else if (strcmp(command, "DELETE") == 0)
+        {
+            puts("Please do: DELETE ID=<id> instead");
+        }
+
+        /* ---------- SAVE ---------- */
+        else if (strcmp(command, "SAVE") == 0)
+        {
+            if (fileopened == 0)
+            {
+                puts("Please OPEN the file first");
+            }
+            else
+            {
+                // Save the in-memory list back to the main DB file
+                if (savedb(&studentData, "P3_1-CMS.txt") == -1)
+                {
+                    printf("Failed to open, please free up some memory and try again.\n");
+                    continue;
+                }
+                puts("File successfully saved.");
+            }
+        }
+
+        /* ---------- HELP ---------- */
+        else if (strcmp(command, "HELP") == 0)
+        {
+            // Re-print the list of available commands
+            puts("Commands: OPEN | SHOW ALL | SUMMARY | INSERT | QUERY ID=<id> | UPDATE ID=<id> | DELETE ID=<id> | EXIT | SAVE | HELP");
+        }
+
+        /* ---------- SUMMARY ---------- */
+        else if (strcmp(command, "SUMMARY") == 0)  
+        {
+            if (!fileopened)
+            {
+                puts("CMS: Please OPEN the database before displaying summary.");
+                continue;
+            }
+            else
+            {
+                show_summary(&studentData);
+            }
+        }
+
+        /* ---------- Unknown command ---------- */
+        else
+        {
+            // Optional: you could add an error here, but your assignment might not need it
+            // puts("CMS: Unknown command. Type HELP for a list of commands.");
+        }
     }
-    return 0;  // reached end of list without finding the id
+
+    // (Optional cleanup could go here: list_clear(&studentData);)
+    // For now I just let the OS reclaim memory on exit.
 }
