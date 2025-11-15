@@ -53,22 +53,24 @@ void insertStudentRecords(LinkedList *list, int fileOpened)
     // Must have an opened file before we allow insert
     if (!fileOpened) {
         printf("CMS: Please OPEN the database before inserting records.\n");
-        return; // exit the function immediately
+        return; // exit the function immediately if database not opened
     }
     
-    char buffer[22];
-    Student s;
+    char buffer[22]; // temporary buffer to store user input
+    Student s; // structure to store validated student data
 
-
+    // -----------------------------
+    // Input and validate Student ID
+    // -----------------------------
     while (1) {
         printf("Enter Student ID (7 digits): ");
-        // Read user input into buffer
+        // Read user input into buffer; continue if EOF
         if (!fgets(buffer, sizeof(buffer), stdin)) continue;  // in case of EOF
 
         // Remove trailing newline if present
         buffer[strcspn(buffer, "\n")] = '\0';
 
-        // Check length must be exactly 7 digits
+        // Check that the ID has exactly 7 characters
         if (strlen(buffer) != 7) {
             printf("CMS: Student ID must be exactly 7 digits.\n");
             continue;
@@ -85,13 +87,13 @@ void insertStudentRecords(LinkedList *list, int fileOpened)
 
         if (!valid) {
             printf("CMS: Student ID must contain only digits.\n");
-            continue;
+            continue; // reprompt
         }
 
-        // Now it is safe to convert to integer
+        // Convert the validated string ID to an integer
         int id = atoi(buffer);
         
-        // Check for duplicate ID in the existing linked list
+        // Check for duplicate ID in the linked list
         Node *n = list->head;
         int duplicate = 0;
         
@@ -105,20 +107,23 @@ void insertStudentRecords(LinkedList *list, int fileOpened)
 
         if (duplicate) {
             printf("CMS: Student record with ID=%d already exists.\n", id);
-            // Ask for a new ID again
-            continue;
+            continue; // reprompt
         }
             
-        // Valid and unique ID, we can store it
+        // Valid and unique ID, store it in the Student structure
         s.id = id;
         break;
     }
 
-
+    // -----------------------------
+    // Input and validate Student Name
+    // -----------------------------
     while (1) {
         printf("Enter Student Name (max 22 characters): ");
         if (!fgets(s.name, MAX_NAME, stdin)) continue;
-        s.name[strcspn(s.name, "\n")] = '\0'; // remove newline
+
+        // Remove newline
+        s.name[strcspn(s.name, "\n")] = '\0'; 
 
         // Disallow empty name
         if (strlen(s.name) == 0) {
@@ -132,7 +137,7 @@ void insertStudentRecords(LinkedList *list, int fileOpened)
             continue;
         }
         
-        // Name should only contain letters and spaces (no digits/punctuation)
+        // Name must only contain letters and spaces
         int valid = 1;
         for (int i = 0; s.name[i] != '\0'; i++) {
             if (!isalpha((unsigned char)s.name[i]) && s.name[i] != ' ') {
@@ -146,15 +151,19 @@ void insertStudentRecords(LinkedList *list, int fileOpened)
             continue;
         }
             
-        // Reached here means name is valid
+        // name is valid
         break;
     }
 
-
+    // -----------------------------
+    // Input and validate Programme
+    // -----------------------------
     while (1) {
         printf("Enter Programme: ");
         if (!fgets(s.programme, MAX_PROGRAM, stdin)) continue;
-        s.programme[strcspn(s.programme, "\n")] = '\0'; // remove newline
+        
+        // Remove newline
+        s.programme[strcspn(s.programme, "\n")] = '\0'; 
 
         // Disallow empty programme
         if (strlen(s.programme) == 0) {
@@ -162,7 +171,7 @@ void insertStudentRecords(LinkedList *list, int fileOpened)
             continue;
         }
         
-        // Programme should only contain letters and spaces
+        // Programme must only contain letters and spaces
         int valid = 1;
         for (int i = 0; s.programme[i] != '\0'; i++) {
             if (!isalpha((unsigned char)s.programme[i]) && s.programme[i] != ' ') {
@@ -175,58 +184,64 @@ void insertStudentRecords(LinkedList *list, int fileOpened)
             printf("CMS: Programme must contain only letters.\n");
             continue;
         }
-            
-        break; // valid programme entered
+        
+        // programme is valid
+        break; 
     }
 
-
+     // -----------------------------
+    // Input and validate Student Mark
+    // -----------------------------
     while (1) {
         printf("Enter Student Mark: ");
         if (!fgets(buffer, sizeof(buffer), stdin)) continue;
-        
-        buffer[strcspn(buffer, "\n")] = '\0'; // remove newline
+
+        // Remove newline
+        buffer[strcspn(buffer, "\n")] = '\0'; 
         
         float mark;
-        // sscanf returns 1 if it successfully reads a float into mark
+        // sscanf returns 1 if it successfully reads a float
         if (sscanf(buffer, "%f", &mark) == 1) {
-            // Check mark range [0,100]
+            // Ensure mark is in range 0–100
             if (mark < 0 || mark > 100) {
                 printf("CMS: Mark must be between 0 and 100.\n");
                 continue; // reprompt
             }
-
+            
+            // store valid mark
             s.mark = mark;
-            break; // valid input, exit loop
+            break; 
+
         } else {
-            printf("Error: Please enter a valid number.\n");
+            printf("CMS: Please enter a valid number.\n");
         }
     }
 
-
-
-    // Allocate memory for a new node
-    Node *newNode = malloc(sizeof(Node));
+    // -----------------------------
+    // Create a new Node
+    // -----------------------------
+    Node *newNode = malloc(sizeof(Node)); // allocate memory
     if (!newNode) {
-        puts("Error: Memory allocation failed.");
+        puts("CMS: Memory allocation failed."); // check allocation
         return;
     }
-    newNode->s   = s;
-    newNode->next = NULL;
+    newNode->s   = s; // copy student data
+    newNode->next = NULL; // end of list
 
-    // If list is empty, new node becomes head,
-    // otherwise append to the end of the list.
+    // -----------------------------
+    // Insert Node into Linked List
+    // -----------------------------
     if (!list->head) {
-        list->head = newNode;
+        list->head = newNode; // first node becomes head
     } else {
         Node *curr = list->head;
         while (curr->next)
-            curr = curr->next;
-        curr->next = newNode;
+            curr = curr->next; // traverse to end
+        curr->next = newNode; // append new node
     }
 
     printf("CMS: Student record with ID=%d successfully inserted.\n", s.id);
 }
-
 
 static int parse_id(const char *args, int *id)
 {
