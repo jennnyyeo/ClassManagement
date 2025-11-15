@@ -507,32 +507,34 @@ void updateStudentRecord(LinkedList *list, const char *args) // this function lo
     }
 }
    
-
+// Function to swap the data of two Student nodes
 void swapStudents(Node *a, Node *b) {
-    Student temp = a->s;
-    a->s = b->s;
-    b->s = temp;
+    Student temp = a->s; // store data of node a temporarily
+    a->s = b->s; // copy data of node b into node a
+    b->s = temp; // copy temp (original a) into node b
 }
 
-
+// Function to sort a linked list of students by a given field (ID or MARK)
+// ascending = 1 for ascending order, 0 for descending
 void bubbleSortLinkedList(LinkedList *list, const char *field, int ascending) {
     // If list is empty or has only one element, nothing to sort
     if (!list || !list->head || !list->head->next) return;
 
-    int swapped; 
-    Node *ptr; 
-    Node *lptr = NULL; // last node pointer (end boundary for each pass)
+    int swapped; // flag to check if a swap occurred in a pass
+    Node *ptr; // pointer to traverse the list
+    Node *lptr = NULL; // marks the last node boundary for each pass
 
     do { 
-        swapped = 0; 
-        ptr = list->head; 
+        swapped = 0; // reset swap flag at start of each pass
+        ptr = list->head; // start from the head of the list
 
+        // Traverse until the last sorted node
         while (ptr->next != lptr) { 
-            int cmp = 0;
+            int cmp = 0; // comparison result between two nodes
 
             // Compare by ID
             if (strcmp(field, "ID") == 0) {
-                cmp = ptr->s.id - ptr->next->s.id;
+                cmp = ptr->s.id - ptr->next->s.id; // positive if current > next
             } 
             // Compare by MARK
             else if (strcmp(field, "MARK") == 0) {
@@ -541,24 +543,24 @@ void bubbleSortLinkedList(LinkedList *list, const char *field, int ascending) {
                 else                                      cmp = 0;
             }
 
-            // If we want descending order, just flip the sign
+            // Flip comparison result if descending order is requested
             if (!ascending) cmp = -cmp;
 
-            // If cmp > 0, then the two nodes are in wrong order → swap them
+            // Swap nodes if they are in the wrong order
             if (cmp > 0) {
-                swapStudents(ptr, ptr->next);
-                swapped = 1;
+                swapStudents(ptr, ptr->next); // swap the student data
+                swapped = 1; // mark that a swap occurred
             }
 
+            // move to the next node
             ptr = ptr->next;
         }
         
-        // After each pass, the last element is in correct position
+        // After each pass, the last node is in its correct position
         lptr = ptr;
 
-    } while (swapped);  // Keep looping while we are still swapping
+    } while (swapped); // Repeat passes until no swaps are needed
 }
-
 
 void show_summary(const LinkedList *list)
 {

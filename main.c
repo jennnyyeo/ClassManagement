@@ -129,46 +129,53 @@ int main(void)
 
         /* ---------- SHOW ALL (with optional sorting) ---------- */
         else if (strncmp(command, "SHOW ALL", 8) == 0) {
+            // Check if database file has been opened
             if (!fileopened) {
                 printf("CMS: Please OPEN the database before displaying records.\n");
-                continue;
+                continue; // skip rest and prompt for a new command
             }
 
+            // buffer to store user input
             char choice[10];
             
-            // Ask if user wants to sort the records before showing them
+            // Ask user if they want to sort the records before displaying
             while (1) {
                 printf("Do you want to sort the records? (Y/N): ");
 
+                // Read input and handle EOF
                 if (!fgets(choice, sizeof(choice), stdin)) continue;
+                
+                // Remove trailing newline
                 choice[strcspn(choice, "\n")] = '\0';
 
-                // Normalise first char to uppercase
+                // Convert first character to uppercase for uniformity
                 char c = toupper((unsigned char)choice[0]);
                 
+                // valid input
                 if (c == 'Y' || c == 'N') {
                     if (c == 'N') {
-                        // No sorting, just show as-is
+                        // User chose not to sort, display list as-is
                         show_all_cmd(&studentData, fileopened);
-                        break; // skip sorting
+                        break; // exit sorting loop
                     }
                     
-                    // If 'Y', ask what to sort by (ID or MARK)
+                    // If user wants to sort, ask which field to sort by
                     while (1) {
                         printf("Sort by ID or MARK? Enter ID or MARK: ");
                         if (!fgets(choice, sizeof(choice), stdin)) continue;
                         
                         choice[strcspn(choice, "\n")] = '\0';
 
-                        // Convert entire word to uppercase for easier comparison
+                         // Convert entire word to uppercase for comparison
                         for (int i = 0; choice[i]; i++)
                             choice[i] = toupper((unsigned char)choice[i]);
 
+                        // Validate input: must be ID or MARK
                         if (strcmp(choice, "ID") == 0 || strcmp(choice, "MARK") == 0) {
                             char order[10];
-                            int ascending = 1; // default sort order is ascending
+                            int ascending = 1; // default ascending order
                             
-                            // Ask for sorting order (ascending/descending)
+                            // Ask user for sort order (ascending/descending)
                             while (1) {
                                 printf("Sort ascending or descending? (A/D): ");
                                 
@@ -179,27 +186,28 @@ int main(void)
                                 
                                 if (o == 'A') { 
                                     ascending = 1; 
-                                    break; 
+                                    break; // valid order
                                 }
                                 else if (o == 'D') { 
                                     ascending = 0; 
-                                    break; 
+                                    break; // valid order
                                 }
                                 else { 
                                     printf("CMS: Please enter A or D.\n"); 
                                 }
                             }
                             
-                            // Perform the bubble sort on the linked list
+                            // Perform bubble sort on the linked list based on chosen field and order
                             bubbleSortLinkedList(&studentData, choice, ascending);
-                            // And then display the sorted list
+                            
+                            // Display the sorted list
                             show_all_cmd(&studentData, fileopened);
-                            break; // done sorting
+                            break; // exit sort field loop
                         } else {
-                            printf("CMS: Please enter either ID or MARK.\n");
+                            printf("CMS: Please enter either ID or MARK.\n"); // invalid field input
                         }
                     }
-                    break; // done with SHOW ALL command
+                    break; // exit main SHOW ALL loop
                 } else {
                     printf("CMS: Please enter Y or N.\n");
                 }
