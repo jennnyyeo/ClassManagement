@@ -5,10 +5,7 @@
 #include "commands.h"
 #include "linked_list.h"
 
-/*
- * Small helper to move a char pointer forward over spaces and tabs.
- * I use this when parsing command arguments like "ID = 1234567".
- */
+
 static const char *skip_ws(const char *p)
 {
     while (*p == ' ' || *p == '\t')
@@ -16,12 +13,7 @@ static const char *skip_ws(const char *p)
     return p;
 }
 
-/*
- * SHOWALL command:
- * - First checks if a file/database has been opened.
- * - Then prints a table header and walks through the linked list,
- *   printing every student record.
- */
+
 void show_all_cmd(const LinkedList *list, int fileOpened)
 {
     // Make sure user has opened a database file first
@@ -55,13 +47,7 @@ void show_all_cmd(const LinkedList *list, int fileOpened)
     printf("There are in total %zu record(s).\n", records);
 }
 
-/*
- * INSERT command:
- * - Interactively asks the user for a new student's details.
- * - Validates each field (ID, Name, Programme, Mark).
- * - Ensures ID is unique.
- * - Adds the new record to the end of the linked list.
- */
+
 void insertStudentRecords(LinkedList *list, int fileOpened) 
 {
     // Must have an opened file before we allow insert
@@ -73,7 +59,7 @@ void insertStudentRecords(LinkedList *list, int fileOpened)
     char buffer[22];
     Student s;
 
-    /* ---------- Get and validate Student ID ---------- */
+
     while (1) {
         printf("Enter Student ID (7 digits): ");
         // Read user input into buffer
@@ -128,7 +114,7 @@ void insertStudentRecords(LinkedList *list, int fileOpened)
         break;
     }
 
-    /* ---------- Get and validate Student Name ---------- */
+
     while (1) {
         printf("Enter Student Name (max 22 characters): ");
         if (!fgets(s.name, MAX_NAME, stdin)) continue;
@@ -164,7 +150,7 @@ void insertStudentRecords(LinkedList *list, int fileOpened)
         break;
     }
 
-    /* ---------- Get and validate Programme ---------- */
+
     while (1) {
         printf("Enter Programme: ");
         if (!fgets(s.programme, MAX_PROGRAM, stdin)) continue;
@@ -193,7 +179,7 @@ void insertStudentRecords(LinkedList *list, int fileOpened)
         break; // valid programme entered
     }
 
-    /* ---------- Get and validate Student Mark ---------- */
+
     while (1) {
         printf("Enter Student Mark: ");
         if (!fgets(buffer, sizeof(buffer), stdin)) continue;
@@ -216,7 +202,7 @@ void insertStudentRecords(LinkedList *list, int fileOpened)
         }
     }
 
-    /* ---------- Insert new student into linked list ---------- */
+
 
     // Allocate memory for a new node
     Node *newNode = malloc(sizeof(Node));
@@ -241,11 +227,7 @@ void insertStudentRecords(LinkedList *list, int fileOpened)
     printf("CMS: Student record with ID=%d successfully inserted.\n", s.id);
 }
 
-/*
- * Helper to parse an ID from a string like "ID=123" or "id = 123".
- * Returns 1 on success and writes the ID into *id.
- * Returns 0 if the format is wrong.
- */
+
 static int parse_id(const char *args, int *id)
 {
     const char *p = skip_ws(args);
@@ -275,14 +257,7 @@ static int parse_id(const char *args, int *id)
     return 1;
 }
 
-/*
- * Generic yes/no question reader:
- * - Reads a line from stdin.
- * - Accepts 'Y'/'y' as yes (returns 1).
- * - Accepts 'N'/'n' as no (returns 0).
- * - Keeps reprompting until user gives a valid answer.
- * - Treats EOF as 'No' (return 0).
- */
+
 static int yes_no_qn(void)
 {
     char buf[64];
@@ -311,12 +286,7 @@ static int yes_no_qn(void)
     }
 }
 
-/*
- * QUERY command:
- * - Parses "ID=<id>" from args.
- * - Looks up the node with that ID using list_find_by_id.
- * - If found, prints the record in the same table format as SHOWALL.
- */
+
 void query(const LinkedList *list, const char *args) {
     if (!list) { 
         puts("(no list)"); 
@@ -342,12 +312,7 @@ void query(const LinkedList *list, const char *args) {
            n->s.id, n->s.name, n->s.programme, n->s.mark);
 }
 
-/*
- * DELETE command:
- * - Parses "ID=<id>" from args.
- * - Confirms with user (Y/N) before deleting.
- * - Calls list_delete_by_id to remove the node from the list.
- */
+
 void delete(LinkedList *list, const char *args)
 {
     int id = 0;
@@ -389,168 +354,152 @@ void delete(LinkedList *list, const char *args)
     }
 }
 
-/*
- * UPDATE command:
- * - Parses "ID=<id>" from args.
- * - Finds the corresponding student node.
- * - Asks the user for new Name, Programme, and Mark.
- * - Pressing Enter without typing anything will leave that field unchanged.
- * - Validates each field similar to INSERT.
- */
-void updateStudentRecord(LinkedList *list, const char *args)
+// This function updates an existing student's record based on the ID provided.
+void updateStudentRecord(LinkedList *list, const char *args) // this function looks for student using studentID and then based on this, updates the record
 {
-    int id = 0;
-    if (!parse_id(args, &id))
+    int id = 0; // creates an integer variable id, its initialized to 0 but this variable is basically for storing the student ID parsed from args
+    if (!parse_id(args, &id)) // calls parse_id to extract the ID from args, if this thing fail, it will prompt an error message and return
     {
         puts("CMS: Use UPDATE ID =<id>");
         return;
     }
 
-    // Try to find the existing record
-    Node *n = list_find_by_id(list, id);
-    if (!n)
+   
+    Node *n = list_find_by_id(list, id); // this basically checks if the studentID exist inside the linkedlist
+    if (!n) // this checks if the node is NULL, means studentID doesnt not exist inside the linkedlist
     {
-        printf("CMS: The record with ID=%d does not exist.\n", id);
+        printf("CMS: The record with ID=%d does not exist.\n", id); // this will be printed out if studentID doesnt exist 
         return;
     }
 
-    printf("CMS: Record with ID=%d found.\n", id);
+    printf("CMS: Record with ID=%d found.\n", id); // this will be printed if the n is not NULL, means student ID exists
 
-    char buffer[128];
-    int fieldUpdated = 0; // track if any field was actually changed
+    char buffer[128]; // temporary buffer to hold user input for each field
+    int fieldUpdated = 0; // this is just for tracking if theres any field updated or not
 
-    /* ---------- Update name (optional) ---------- */
-    while(1)
+    // optional update for name, since user can just press enter to skip updating name
+    while(1) // this is an infinite loop, will break out of it when invalid or valid input is given
     {
-        printf("Enter new Student Name (current: %s): ", n->s.name);
-        if (!fgets(buffer, sizeof(buffer), stdin)) continue;
+        printf("Enter new Student Name (current: %s): ", n->s.name); // prompt user for new name, shows current name in parentheses
+        if (!fgets(buffer, sizeof(buffer), stdin)) continue; // read user input into buffer, if fgets fails, we just reprompt
         buffer[strcspn(buffer, "\n")] = '\0';
 
         // If user just presses Enter, we don't change the name
-        if (strlen(buffer) == 0)
+        if (strlen(buffer) == 0) // checks is user just pressed enter
         {
-            break;
+            break; // break the loop, means no change to name
         }
 
         // Only allow letters and spaces in the name
-        int valid = 1;
-        for (int i = 0; buffer[i] != '\0'; i++)
+        int valid = 1; // assume that input is valid
+        for (int i = 0; buffer[i] != '\0'; i++) // this will loop through each character in the buffer
         {
-            if (!isalpha((unsigned char)buffer[i]) && buffer[i] != ' ')
+            if (!isalpha((unsigned char)buffer[i]) && buffer[i] != ' ') // checks each character typed by user if its not a letter or space
             {
-                valid = 0;
-                break;
+                valid = 0; // mark as invalid
+                break; // break out of the loop early
             }
         }
 
-        if (!valid)
+        if (!valid) // if input is not valid
         {
-            printf("Error: Name must contain only letters and spaces.\n");
-            continue;
+            printf("Error: Name must contain only letters and spaces.\n"); // print error message
+            continue; // will reprompt for name
         }
 
-        // Copy into the struct's name field safely
-        strncpy(n->s.name, buffer, MAX_NAME);
-        n->s.name[MAX_NAME -1] = '\0';
-        fieldUpdated = 1;
+       
+        strncpy(n->s.name, buffer, MAX_NAME); // copy the valid name into the student struct
+        n->s.name[MAX_NAME -1] = '\0'; // this ensures null termination
+        fieldUpdated = 1; // this indicates that tehre is changes in the name field 
+        break; // this will break out of the loop since we have valid input
+    }
+    // optional field since user can just press enter to skip updating a programme
+    while (1) // infinite loop to keep asking for programme until valid input or skip
+    {
+        printf("Enter new Programme (current: %s): ", n->s.programme); // this will prompt for user for new programme, this will still show the current programme inside the parenthesis
+        if (!fgets(buffer, sizeof(buffer), stdin)) continue; // read user input into buffer, if fgets fails, we just reprompt
+        buffer[strcspn(buffer, "\n")] = '\0'; // this will remove the trailing newline character from the input
+        
+       
+        if (strlen(buffer) == 0) //checks if user just pressed enter means no update to the programme
+        {
+            break; // break the loop, means no change to programme
+        }
+
+
+        int valid = 1; // assume input is valid
+        for (int i = 0; buffer[i] != '\0'; i++) // loop through each character in the buffer
+        {
+            if (!isalpha((unsigned char)buffer[i]) && buffer[i] != ' ') // checks if each character is not a letter or space
+            {
+                valid = 0; // this will mark the input as invalid
+                break; // break out of the loop early
+            }
+        }
+
+        if (!valid) // if innput is invalid
+        {
+            printf("Error: Programme must contain only letters and spaces. \n"); // this error message will be printed
+            continue; // reprompt for programme
+        }
+
+        strncpy(n->s.programme, buffer, MAX_PROGRAM); // this will make a copy of the valid programme into the student struct
+        n->s.programme[MAX_PROGRAM -1] = '\0'; // this ensures null termination
+        fieldUpdated = 1; // indicates that there is changes in the programme field
         break;
     }
 
-    /* ---------- Update programme (optional) ---------- */
+    // optional field since user can just press enter to skip updating a mark
     while (1)
     {
-        printf("Enter new Programme (current: %s): ", n->s.programme);
-        if (!fgets(buffer, sizeof(buffer), stdin)) continue;
-        buffer[strcspn(buffer, "\n")] = '\0';
+        printf("Enter new Student Mark (current: %.2f): ", n->s.mark); // prompt user for new mark, shows current mark in parentheses
+        if (!fgets(buffer, sizeof(buffer), stdin)) continue; // read user input into buffer, if fgets fails, we just reprompt
+        buffer[strcspn(buffer, "\n")] = '\0'; // this will remove the trailing newline character from the input
+
         
-        // If user presses Enter, keep old programme
-        if (strlen(buffer) == 0)
-        {
-            break;
-        }
-
-        // Only allow letters and spaces in programme name
-        int valid = 1;
-        for (int i = 0; buffer[i] != '\0'; i++)
-        {
-            if (!isalpha((unsigned char)buffer[i]) && buffer[i] != ' ')
-            {
-                valid = 0;
-                break;
-            }
-        }
-
-        if (!valid)
-        {
-            printf("Error: Programme must contain only letters and spaces. \n");
-            continue;
-        }
-
-        strncpy(n->s.programme, buffer, MAX_PROGRAM);
-        n->s.programme[MAX_PROGRAM -1] = '\0';
-        fieldUpdated = 1;
-        break;
-    }
-
-    /* ---------- Update mark (optional) ---------- */
-    while (1)
-    {
-        printf("Enter new Student Mark (current: %.2f): ", n->s.mark);
-        if (!fgets(buffer, sizeof(buffer), stdin)) continue;
-        buffer[strcspn(buffer, "\n")] = '\0';
-
-        // Empty input → no change
-        if (strlen(buffer) == 0)
+        if (strlen(buffer) == 0) // checks if user just pressed enter
         {
             break;
         }
         
-        float mark;
-        // Try to parse a float from the input
-        if (sscanf(buffer, "%f", &mark) == 1)
+        float mark; // temporary variable to hold parsed mark
+        
+        if (sscanf(buffer, "%f", &mark) == 1) // tries to parse a float from the buffer
         {
-            if (mark < 0.0 || mark > 100.0)
+            if (mark < 0.0 || mark > 100.0) // ensures thatb the mark is within valid range
             {
-                printf("Error: Mark must be between 0 and 100.\n");
-                continue;
+                printf("Error: Mark must be between 0 and 100.\n"); // print error message
+                continue; // reprompt for mark
             }
-            n->s.mark = mark;
-            fieldUpdated = 1;
-            break;
+            n->s.mark = mark; // update the mark in the student struct
+            fieldUpdated = 1; // indicates that there is changes in the mark field
+            break; // break out of the loop since we have valid input
         }
         else
         {
-            printf("Error: Please enter a valid numeric mark.\n");
+            printf("Error: Please enter a valid numeric mark.\n"); // print error message for invalid input
         }
     }
 
-    /* ---------- Final message based on whether anything changed ---------- */
-    if (fieldUpdated)
+    
+    if (fieldUpdated) // if any field was updated
     {
-        printf("CMS: The record with ID=%d is successfully updated. \n", id);
+        printf("CMS: The record with ID=%d is successfully updated. \n", id); // print success message
     }
-    else
+    else    
     {
-        printf("CMS: No changes made to the record with ID=%d. \n", id);
+        printf("CMS: No changes made to the record with ID=%d. \n", id); // print message indicating no changes were made
     }
 }
    
-/*
- * Helper to swap the Student data between two nodes.
- * I use this in bubble sort so I don't have to relink the nodes.
- */
+
 void swapStudents(Node *a, Node *b) {
     Student temp = a->s;
     a->s = b->s;
     b->s = temp;
 }
 
-/*
- * Bubble sort on the linked list:
- * - Can sort by ID or MARK (based on the 'field' string).
- * - 'ascending' flag controls ascending (1) or descending (0) order.
- * - Uses swapStudents to swap the Student data inside nodes.
- */
+
 void bubbleSortLinkedList(LinkedList *list, const char *field, int ascending) {
     // If list is empty or has only one element, nothing to sort
     if (!list || !list->head || !list->head->next) return;
@@ -595,15 +544,7 @@ void bubbleSortLinkedList(LinkedList *list, const char *field, int ascending) {
     } while (swapped);  // Keep looping while we are still swapping
 }
 
-/*
- * SHOWSUMMARY command:
- * - If the list is empty, prints zeros and N/A.
- * - Otherwise, goes through all students and calculates:
- *     - total number of students
- *     - average mark
- *     - highest mark (and the student's name)
- *     - lowest mark (and the student's name)
- */
+
 void show_summary(const LinkedList *list)
 {
     // Handle empty list case cleanly
