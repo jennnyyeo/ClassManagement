@@ -272,7 +272,7 @@ static int parse_id(const char *args, int *id)
     return 1;
 }
 
-
+// Yes/No question reader: Reads input from stdin and accepts 'Y' (1) and 'N' (0). It will keep reprompting until user gives correct answer.
 static int yes_no_qn(void)
 {
     char buf[64];
@@ -294,14 +294,15 @@ static int yes_no_qn(void)
         if (*p == 'N' || *p == 'n')
             return 0;
 
-        // If we reach here, the answer was invalid → reprompt
+        // If we reach here, the answer was invalid, then reprompt
         printf("CMS: Please type \"Y\" to confirm or \"N\" to cancel.\n");
         printf("P1_1: ");
-        fflush(stdout); // keep prompt on same line as user input
+        fflush(stdout); // keep the prompt on same line as user input
     }
 }
 
 
+//QUERY command: It parses in the 'ID=<id>' from args and look up the node based on ID. Once found it will print the record in table format
 void query(const LinkedList *list, const char *args) {
     if (!list) { 
         puts("(no list)"); 
@@ -328,6 +329,7 @@ void query(const LinkedList *list, const char *args) {
 }
 
 
+// DELETE command: It parses in the 'ID=<id>' from args and look up the node based on ID. Once found it will call the delete node function to remove from the list
 void delete(LinkedList *list, const char *args)
 {
     int id = 0;

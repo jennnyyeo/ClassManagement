@@ -1,16 +1,8 @@
 #include "linked_list.h"
 #include <stdlib.h>
 
-/*
- * create_node:
- * - Small helper that allocates a new Node on the heap.
- * - Copies the Student data from *st into the node.
- * - Sets next to NULL so the caller can link it properly.
- *
- * Returns:
- *   pointer to the new Node on success
- *   NULL if malloc fails
- */
+
+//create_node: Helper function to help allocate new Node from the Student data from *st into node
 Node* create_node(const Student* st) {
     Node* newNode = (Node*)malloc(sizeof * newNode);
     if (!newNode) {
@@ -24,16 +16,8 @@ Node* create_node(const Student* st) {
     return newNode;
 }
 
-/*
- * insert_node:
- * - Inserts a new Student at the end of the linked list.
- * - Uses create_node() to allocate and set up the node.
- * - Updates both head and tail pointers when needed.
- *
- * Returns:
- *   0  on success
- *  -1  if allocation failed
- */
+
+//inserts a new node into the LinkedList *L where it will create a new node based on Student *st data
 int insert_node(LinkedList* L, const Student* st) {
     Node* newNode = create_node(st);
     if (!newNode) {
@@ -49,22 +33,14 @@ int insert_node(LinkedList* L, const Student* st) {
     return 0;                         // success
 }
 
-/*
- * list_init:
- * - Simple initialiser for a LinkedList.
- * - Sets both head and tail to NULL so the list starts off empty.
- */
+
+//initialize the LinkedList
 void list_init(LinkedList* L) {
     L->head = L->tail = NULL;
 }
 
-/*
- * list_clear:
- * - Walks through the entire list and frees every node.
- * - At the end, both head and tail are set to NULL.
- *
- * I use this to clean up when the program exits or when switching files.
- */
+
+//It is to clear an entire LinkedList, free all nodes inside and set head and tail to NULL
 void list_clear(LinkedList* L) {
     for (Node* p = L->head; p;) {
         Node* n = p->next;  // remember next before freeing
@@ -74,15 +50,7 @@ void list_clear(LinkedList* L) {
     L->head = L->tail = NULL;
 }
 
-/*
- * list_find_by_id:
- * - Linearly searches the list for the first node whose Student.id matches
- *   the given id.
- *
- * Returns:
- *   pointer to the matching Node
- *   NULL if no such node exists
- */
+//it will take the id based on int id and go through every node until a match is found
 Node* list_find_by_id(LinkedList* L, int id) {
     for (Node* p = L->head; p; p = p->next) {
         if (p->s.id == id) {
@@ -92,17 +60,8 @@ Node* list_find_by_id(LinkedList* L, int id) {
     return NULL;
 }
 
-/*
- * list_delete_by_id:
- * - Removes the first node in the list whose Student.id matches id.
- * - Relinks the previous node to skip over the deleted one.
- * - If the deleted node was the head, updates head accordingly.
- * - Frees the memory of the deleted node.
- *
- * Returns:
- *   1  if a node was found and deleted
- *   0  if no node with that id exists in the list
- */
+
+//it will go through every node until the int id matches and then free that node to delete
 int list_delete_by_id(LinkedList* L, int id) {
     Node* prev = NULL;
     Node* cur  = L->head;

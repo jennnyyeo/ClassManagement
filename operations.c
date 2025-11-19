@@ -178,18 +178,8 @@ int opendb(LinkedList *store, const char *filename, int fileOpened)
 	return 0;
 }
 
-/*
- * savedb:
- * - Saves the current linked list into a TSV file.
- * - Writes a header row, then one line per student:
- *       ID<TAB>Name<TAB>Programme<TAB>Mark
- * - Uses sanitize_field() to make sure Name and Programme don't contain
- *   any tabs or newlines which might corrupt the TSV format.
- *
- * Returns:
- *   -1  on failure
- *    0  on success
- */
+
+//savedb will save the current linked list into the original txt file
 int savedb(LinkedList *store, const char *filename)
 {
 	FILE *f = fopen(filename, "w");
@@ -248,17 +238,8 @@ int savedb(LinkedList *store, const char *filename)
 	return 0;
 }
 
-/*
- * autoSave:
- * - Convenience wrapper that autosaves the current list to "autosave.txt".
- * - Only runs if a file is already opened (based on fileOpened flag).
- * - Uses savedb() internally.
- *
- * Returns:
- *   -1  if autosave failed
- *    0  if autosave succeeded
- *   (no explicit return if fileOpened == 0; I currently only autosave when open)
- */
+
+//autosave will autosave the file for the purpose if the program crash before the user can save back into the txt file
 int autoSave(LinkedList *list, int fileOpened)
 {
 	if (fileOpened)
@@ -277,18 +258,8 @@ int autoSave(LinkedList *list, int fileOpened)
 	// (Could be extended to print a message or return a specific code.)
 }
 
-/*
- * recoverChanges:
- * - Compares the contents of the main DB file (dbFile) and the autosave file
- *   (asFile) character by character.
- * - This helps me detect if the autosave version has diverged from the
- *   original file on disk.
- *
- * Returns:
- *    0  if files are identical
- *    1  if there's at least one differing character
- *   -1  if opening either file fails
- */
+
+//it compares contents of main db txt file and autosave txt file and detect if any changes were made
 int recoverChanges(const char *dbFile, const char *asFile)
 {
 	FILE *fdb, *fas;

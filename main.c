@@ -15,11 +15,7 @@ int main(void)
     char command[256];      // buffer to store user command input
     int fileopened = 0;     // flag to track whether the main DB file has been opened
 
-    /*
-     * On startup, I check if there are any changes to recover by comparing
-     * the main DB file (P3_1-CMS.txt) with the autosave file (autosave.txt).
-     * If they differ, I give the user a chance to restore the autosaved state.
-     */
+    //On startup, will compare current txt file with autosave, if different, will prompt user if want to recover
     if (recoverChanges("P3_1-CMS.txt", "autosave.txt"))
     {
         char choice[10];
@@ -83,12 +79,8 @@ int main(void)
     puts("Commands: OPEN | SHOW ALL | SUMMARY | INSERT | QUERY ID=<id> | UPDATE ID=<id> | DELETE ID=<id> | EXIT | SAVE | HELP");
     puts("Notes: Changes are automatically saved to 'autosave.txt' after each modification.");
 
-    /*
-     * Main command loop:
-     * - Prompts the user for a command.
-     * - Parses it and dispatches to the corresponding function.
-     * - Loop terminates when user enters EXIT or EOF.
-     */
+    
+    //It will prompt the user for a command, parses it and then dispatch to the corresponding function
     for (;;)
     {
         printf("Please input a command: ");
@@ -127,7 +119,7 @@ int main(void)
             fileopened = 1;
         }
 
-        /* ---------- SHOW ALL (with optional sorting) ---------- */
+        //SHOW ALL (SORTING OPTIONAL)
         else if (strncmp(command, "SHOW ALL", 8) == 0) {
             // Check if database file has been opened
             if (!fileopened) {
@@ -214,7 +206,7 @@ int main(void)
             }
         }
 
-        /* ---------- INSERT ---------- */
+        //INSERT COMMAND
         else if (strcmp(command, "INSERT") == 0)
         {
             insertStudentRecords(&studentData, fileopened);
@@ -222,14 +214,14 @@ int main(void)
             autoSave(&studentData, fileopened);
         }
 		
-        /* ---------- EXIT ---------- */
+        //EXIT COMMAND
         else if (strcmp(command, "EXIT") == 0)
         {
             // Just break out of the main loop and end the program
             break;
         }
 
-        /* ---------- QUERY ID=<id> ---------- */
+        //QUERY COMMAND
         else if (strncmp(command, "QUERY ", 6) == 0)
         {
             // Pass arguments after "QUERY " to the query function
@@ -241,7 +233,7 @@ int main(void)
             puts("Please do: QUERY ID=<id> instead");
         }
 
-        /* ---------- UPDATE ID=<id> ---------- */
+        //UPDATE COMMAND
         else if (strncmp(command, "UPDATE ", 7) == 0)
         {
             updateStudentRecord(&studentData, command + 7);
@@ -252,7 +244,7 @@ int main(void)
             puts("Please do: UPDATE ID=<id> instead");
         }
 
-        /* ---------- DELETE ID=<id> ---------- */
+        //DELETE COMMAND
         else if (strncmp(command, "DELETE ", 7) == 0)
         {
             delete(&studentData, command + 7);
@@ -263,7 +255,7 @@ int main(void)
             puts("Please do: DELETE ID=<id> instead");
         }
 
-        /* ---------- SAVE ---------- */
+        //SAVE COMMAND
         else if (strcmp(command, "SAVE") == 0)
         {
             if (fileopened == 0)
@@ -282,14 +274,14 @@ int main(void)
             }
         }
 
-        /* ---------- HELP ---------- */
+        //HELP COMMAND
         else if (strcmp(command, "HELP") == 0)
         {
             // Re-print the list of available commands
             puts("Commands: OPEN | SHOW ALL | SUMMARY | INSERT | QUERY ID=<id> | UPDATE ID=<id> | DELETE ID=<id> | EXIT | SAVE | HELP");
         }
 
-        /* ---------- SUMMARY ---------- */
+        //SUMMARY
         else if (strcmp(command, "SUMMARY") == 0)  
         {
             if (!fileopened)
@@ -303,14 +295,10 @@ int main(void)
             }
         }
 
-        /* ---------- Unknown command ---------- */
+        //IF COMMAND IS UNKNOWN
         else
         {
-            // Optional: you could add an error here, but your assignment might not need it
-            // puts("CMS: Unknown command. Type HELP for a list of commands.");
+            puts("CMS: Unknown command. Type HELP for a list of commands.");
         }
     }
-
-    // (Optional cleanup could go here: list_clear(&studentData);)
-    // For now I just let the OS reclaim memory on exit.
 }
