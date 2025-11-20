@@ -296,7 +296,7 @@ static int yes_no_qn(void)
 
         // If we reach here, the answer was invalid, then reprompt
         printf("CMS: Please type \"Y\" to confirm or \"N\" to cancel.\n");
-        printf("P1_1: ");
+        printf("P3_1: ");
         fflush(stdout); // keep the prompt on same line as user input
     }
 }
