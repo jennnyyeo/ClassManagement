@@ -583,13 +583,20 @@ void show_summary(const LinkedList *list)
     char highest_name[MAX_NAME] = "";
     char lowest_name[MAX_NAME]  = "";
 
+    // For programme counting
+    #define MAX_PROGRAMMES 20
+    char programmes[MAX_PROGRAMMES][MAX_PROGRAM];
+    int programme_counts[MAX_PROGRAMMES] = {0};
+    int num_programmes = 0;
+
     // Go through the whole list and update stats
+    // Calculate statistics
     for (const Node *n = list->head; n; n = n->next)
     {
         total_students++;
         total_marks += n->s.mark;
 
-        // Track highest mark and name
+        // Check for highest mark
         if (n->s.mark > highest_mark)
         {
             highest_mark = n->s.mark;
@@ -597,12 +604,32 @@ void show_summary(const LinkedList *list)
             highest_name[MAX_NAME - 1] = '\0';
         }
 
-        // Track lowest mark and name
+        // Check for lowest mark
         if (n->s.mark < lowest_mark)
         {
             lowest_mark = n->s.mark;
             strncpy(lowest_name, n->s.name, MAX_NAME - 1);
             lowest_name[MAX_NAME - 1] = '\0';
+        }
+
+        // Count programmes
+        int found = 0;
+        for (int i = 0; i < num_programmes; i++)
+        {
+            if (strcmp(programmes[i], n->s.programme) == 0)
+            {
+                programme_counts[i]++;
+                found = 1;
+                break;
+            }
+        }
+        
+        if (!found && num_programmes < MAX_PROGRAMMES)
+        {
+            strncpy(programmes[num_programmes], n->s.programme, MAX_PROGRAM - 1);
+            programmes[num_programmes][MAX_PROGRAM - 1] = '\0';
+            programme_counts[num_programmes] = 1;
+            num_programmes++;
         }
     }
 
@@ -618,6 +645,13 @@ void show_summary(const LinkedList *list)
     {
         printf("Highest mark: %.2f (%s)\n", highest_mark, highest_name);
         printf("Lowest mark: %.2f (%s)\n", lowest_mark, lowest_name);
+        
+        // Display programme summary 
+        printf("\nProgramme Summary:\n");
+        for (int i = 0; i < num_programmes; i++)
+        {
+            printf("- %s: %d student(s)\n", programmes[i], programme_counts[i]);
+        }
     }
     else
     {
