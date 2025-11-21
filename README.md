@@ -1,34 +1,31 @@
 # Class Management System (CMS)
 
 ## Overview
-The CMS is a C-based consoloe application that manages student records.
+The CMS is a C-based console application that manages student records.
 It supports basic CRUD operations, sorting, and summary statistics.
 
 ## Features
 - OPEN
 - SHOW ALL
+- SUMMARY
 - INSERT
 - QUERY
 - UPDATE
 - DELETE
 - SAVE
+- HELP
 
 ## Extra Features
 - Sorting
-- Summary Statistics
+- Autosave
 
-## How to run
-- Go to task.json
-- Click on CTRL + SHIFT + B to build the main.exe
-- Find main.exe
-- Open main.exe
-  
 ## File Structure
 - main.c - command processing loop
 - commands.c - implements CRUD operations
 - linked_list.c - linked list management (create, delete, find)
 - operations.c - file operations (open/save)
 - P3_1-CMS.txt - student database file
+- autosave.txt - data backup for recovery
 
 ## Contributors
 - Chiau Yee
@@ -36,6 +33,3 @@ It supports basic CRUD operations, sorting, and summary statistics.
 - Joel
 - Jenny
 - Kai Jun
-    
-  
-
