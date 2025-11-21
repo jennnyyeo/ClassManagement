@@ -311,14 +311,14 @@ void query(const LinkedList *list, const char *args) {
 
     int id = 0;
     if (!parse_id(args, &id)) {
-        puts("Usage: QUERY ID=<id>");
+        puts("CMS: Usage: QUERY ID=<id>. ID must be 7 digits.");
         return;
     }
 
     // list_find_by_id in my linked_list.h takes a (non-const) LinkedList*
     Node *n = list_find_by_id((LinkedList*)list, id);
     if (!n) {
-        printf("No record with ID %d found.\n", id);
+        printf("CMS:No record with ID %d found.\n", id);
         return;
     }
 
@@ -349,7 +349,7 @@ void delete(LinkedList *list, const char *args)
     
     // Ask for confirmation before actually deleting
     printf("CMS: Are you sure you want to delete record with ID=%d Please type \"Y\" to confirm or \"N\" to cancel.\n", id);
-    printf("P1_1: ");
+    printf("P3_1: ");
     fflush(stdout); // keep cursor on same line
 
     if (!yes_no_qn())
