@@ -15,6 +15,13 @@ int main(void)
     char command[256];      // buffer to store user command input
     int fileopened = 0;     // flag to track whether the main DB file has been opened
 
+    //Declaration
+    printf("\t \t \t \t \t  Declaration\n");
+    printf("SIT's policy on copying does not allow the students to copy source code as well as assessment solutions\nfrom another person AI or other places. It is the student's responsibility to guarantee that their\nassessment solutions are their own work. Meanwhile, the students must also ensure that their work is\nnot accessible by others. Where such plagiarism is detected, both of the assessments involved will\nreceive ZERO mark.\n\n");
+    printf("We hereby declare that:\n\u2022  We fully understand and agree to the abovementioned plagiarism policy.\n\u2022  We did not copy any code from others or from other places.\n\u2022  We did not share our codes with others or upload to any other places for public access and will not do that in the future.\n\u2022  We agree that our project will receive Zero mark if there is any plagiarism detected.\n\u2022  We agree that we will not disclose any information or material of the group project to others or upload to any other places for public access.\n\u2022  We agree that we did not copy any code directly from AI generated sources.\n\n");
+    printf("Declared by: P3-1\nTeam members:\n1.  Yeo Jessa Jenny Corrales\n2.  Wong Chiau Yee\n3.  Harith Dinie Bin Zainudin\n4.  Hoe Kai Jun\n5.  Joel Lee Jia Qing\n\n");
+    printf("Date: 21/11/2025\n\n");
+
     //On startup, will compare current txt file with autosave, if different, will prompt user if want to recover
     if (recoverChanges("P3_1-CMS.txt", "autosave.txt"))
     {
